@@ -98,10 +98,7 @@ export default defineConfig(({ command }) => ({
       useCredentials: true,
       includeManifestIcons: false,
       workbox: {
-        globPatterns: [
-          '**/*.{js,css,html}',
-          'manifest.webmanifest',
-        ],
+        globPatterns: ['**/*.{js,css,html}', 'manifest.webmanifest'],
         globIgnores: [
           'images/**/*',
           '**/*.map',

@@ -158,12 +158,7 @@ const ContentRender = memo(function ContentRender({
       label={messageLabel ?? ''}
       hoverLabel={
         agent || assistant
-          ? getHeaderModelName(
-              agent?.model,
-              assistant?.model,
-              msg.model,
-              conversation?.model,
-            )
+          ? getHeaderModelName(agent?.model, assistant?.model, msg.model, conversation?.model)
           : deploymentBrand.assistantName
       }
       timestamp={msg.createdAt ?? msg.clientTimestamp}

@@ -1,7 +1,4 @@
-import {
-  MAX_FILE_PREVIEW_BYTES,
-  resolveMaxFilePreviewBytes,
-} from './preview';
+import { MAX_FILE_PREVIEW_BYTES, resolveMaxFilePreviewBytes } from './preview';
 
 const DEFAULT_MAX_FILE_PREVIEW_BYTES = 512 * 1024;
 

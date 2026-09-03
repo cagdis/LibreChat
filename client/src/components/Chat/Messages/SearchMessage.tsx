@@ -88,13 +88,7 @@ function SearchMessage({ message }: Pick<TMessageProps, 'message'>) {
         : localize('com_user_message');
     }
     return deploymentBrand.assistantName;
-  }, [
-    message?.isCreatedByUser,
-    UsernameDisplay,
-    user?.name,
-    user?.username,
-    localize,
-  ]);
+  }, [message?.isCreatedByUser, UsernameDisplay, user?.name, user?.username, localize]);
 
   const authorHeader = useMemo(
     () =>

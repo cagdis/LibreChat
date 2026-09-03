@@ -47,9 +47,7 @@ export default function Message(props: TMessageProps) {
    *  keeps a neutral label. `com_user_message` reads "You", which is right in the chat
    *  view and wrong here: it is the screen-reader heading for the user turn, and it
    *  would credit every prompt the sharer wrote to the person reading the transcript. */
-  const messageLabel = isCreatedByUser
-    ? localize('com_ui_user')
-    : deploymentBrand.assistantName;
+  const messageLabel = isCreatedByUser ? localize('com_ui_user') : deploymentBrand.assistantName;
 
   return (
     <>

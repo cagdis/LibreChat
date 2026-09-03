@@ -107,8 +107,7 @@ export default function ConvoIcon({
   const avatar = isAgent
     ? (entity as t.Agent | undefined)?.avatar?.filepath
     : ((entity as t.Assistant | undefined)?.metadata?.avatar as string);
-  const displayIconURL =
-    isAgent || isAssistant ? iconURL : deploymentBrand.assistantIconURL;
+  const displayIconURL = isAgent || isAssistant ? iconURL : deploymentBrand.assistantIconURL;
 
   const { provider, imageURL } = useProviderIcon({
     endpoint,

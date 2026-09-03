@@ -69,7 +69,10 @@ function AuthLayout({
             className="h-full w-auto max-w-xs object-contain brightness-0 dark:brightness-100"
             alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'ÁrvorePress IA' })}
           />
-          <span className="text-sm font-medium tracking-wide text-text-secondary" aria-hidden="true">
+          <span
+            className="text-sm font-medium tracking-wide text-text-secondary"
+            aria-hidden="true"
+          >
             IA
           </span>
         </div>
