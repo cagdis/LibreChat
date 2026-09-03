@@ -2289,7 +2289,10 @@ async function handleWorkspaceFileRead(
     };
   } catch (error) {
     if (signal?.aborted === true && isAbortError(error)) throw error;
-    logger.warn('[handleReadFileCall] Attached workspace read failed', getSafeErrorMetadata(error));
+    logger.warn(
+      '[handleWorkspaceFileRead] Attached workspace read failed',
+      getSafeErrorMetadata(error),
+    );
     return {
       toolCallId: tc.id,
       status: 'error',
