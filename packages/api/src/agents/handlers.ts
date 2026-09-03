@@ -2373,14 +2373,10 @@ async function handleWorkspaceSearchCall(
       result.matches.length === 0
         ? 'No matches found.'
         : result.matches
-            .map(
-              (match) =>
-                `workspace/${match.path}:${match.line}:${match.column}: ${match.text}`,
-            )
+            .map((match) => `workspace/${match.path}:${match.line}:${match.column}: ${match.text}`)
             .join('\n');
     const truncationNotice = '\n\n[results truncated]';
-    const locallyTruncated =
-      Buffer.byteLength(unboundedContent, 'utf8') > MAX_READABLE_BYTES;
+    const locallyTruncated = Buffer.byteLength(unboundedContent, 'utf8') > MAX_READABLE_BYTES;
     const truncated = locallyTruncated || result.truncated;
     const content = truncated
       ? truncateUtf8(
@@ -2455,8 +2451,7 @@ async function handleWorkspaceListCall(
         ? 'The attached workspace contains no discoverable files in that path.'
         : result.paths.map((path) => `workspace/${path}`).join('\n');
     const truncationNotice = '\n\n[results truncated; narrow path and list again]';
-    const locallyTruncated =
-      Buffer.byteLength(unboundedContent, 'utf8') > MAX_READABLE_BYTES;
+    const locallyTruncated = Buffer.byteLength(unboundedContent, 'utf8') > MAX_READABLE_BYTES;
     const truncated = locallyTruncated || result.truncated;
     let content = truncated
       ? truncateUtf8(
