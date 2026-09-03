@@ -93,7 +93,7 @@ describe('EndpointIcon', () => {
     );
   });
 
-  it('resolves provider art when invoked as a plain function, as the mention list does', () => {
+  it('uses the deployment identity for a standard model endpoint', () => {
     const conversation = { endpoint: EModelEndpoint.google } as TConversation;
 
     const element = EndpointIcon({
@@ -105,9 +105,8 @@ describe('EndpointIcon', () => {
 
     render(element);
 
-    expect(screen.getByTestId('minimal-icon')).toHaveAttribute(
-      'data-endpoint',
-      EModelEndpoint.google,
-    );
+    const icon = screen.getByTestId('convo-url-icon');
+    expect(icon).toHaveAttribute('src', '/assets/arvorepress-icon.png');
+    expect(icon).toHaveAttribute('alt', 'ÁrvorePress IA');
   });
 });

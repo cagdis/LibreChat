@@ -5,6 +5,7 @@ import { Sparkles, AssistantIcon, ProviderIcon } from '@librechat/client';
 import type * as t from 'librechat-data-provider';
 import ConvoIconURL from '~/components/Endpoints/ConvoIconURL';
 import { cn, getEntity, getIconEndpoint } from '~/utils';
+import { deploymentBrand } from '~/branding/deployment';
 import { useProviderIcon } from '~/hooks/Endpoint';
 import { isImageURL } from '~/utils/icons';
 
@@ -86,33 +87,44 @@ export default function ConvoIcon({
   size?: number;
 }) {
   const iconURL = conversation?.iconURL ?? '';
-  let endpoint = conversation?.endpoint;
+  const entityEndpoint = conversation?.endpoint ?? '';
+  let endpoint = entityEndpoint;
   endpoint = getIconEndpoint({ endpointsConfig, iconURL, endpoint });
 
   const { entity, isAgent, isAssistant } = useMemo(
     () =>
       getEntity({
-        endpoint,
+        endpoint: entityEndpoint,
         agentsMap,
         assistantMap,
         agent_id: conversation?.agent_id,
         assistant_id: conversation?.assistant_id,
       }),
-    [endpoint, conversation?.agent_id, conversation?.assistant_id, agentsMap, assistantMap],
+    [entityEndpoint, conversation?.agent_id, conversation?.assistant_id, agentsMap, assistantMap],
   );
 
   const name = entity?.name ?? '';
   const avatar = isAgent
     ? (entity as t.Agent | undefined)?.avatar?.filepath
     : ((entity as t.Assistant | undefined)?.metadata?.avatar as string);
+  const displayIconURL =
+    isAgent || isAssistant ? iconURL : deploymentBrand.assistantIconURL;
 
-  const { provider, imageURL } = useProviderIcon({ endpoint, endpointsConfig, iconURL });
+  const { provider, imageURL } = useProviderIcon({
+    endpoint,
+    endpointsConfig,
+    iconURL: displayIconURL,
+  });
 
-  if (isImageURL(iconURL)) {
+  if (isImageURL(displayIconURL)) {
     return (
       <ConvoIconURL
-        iconURL={iconURL}
-        modelLabel={conversation?.chatGptLabel ?? conversation?.modelLabel ?? ''}
+        iconURL={displayIconURL}
+        modelLabel={
+          isAgent || isAssistant
+            ? (conversation?.chatGptLabel ?? conversation?.modelLabel ?? '')
+            : deploymentBrand.assistantName
+        }
         provider={provider}
         assistantAvatar={avatar}
         assistantName={name}

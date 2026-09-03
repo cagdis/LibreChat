@@ -14,6 +14,7 @@ import type {
 import { getAgentAvatarUrl, getIconEndpoint, cn } from '~/utils';
 import ConvoIconURL from '~/components/Endpoints/ConvoIconURL';
 import MinimalIcon from '~/components/Endpoints/MinimalIcon';
+import { deploymentBrand } from '~/branding/deployment';
 import { resolveProviderIcon } from '~/hooks/Endpoint';
 import { isImageURL } from '~/utils/icons';
 
@@ -39,15 +40,16 @@ export default function EndpointIcon({
 }) {
   const convoIconURL = conversation?.iconURL ?? '';
   const originalEndpoint = conversation?.endpoint;
+  const entityEndpoint = originalEndpoint ?? '';
   let endpoint = originalEndpoint;
   endpoint = getIconEndpoint({ endpointsConfig, iconURL: convoIconURL, endpoint });
 
   const endpointIconURL = getEndpointField(endpointsConfig, endpoint, 'iconURL');
   const { provider } = resolveProviderIcon({ endpoint, endpointsConfig });
 
-  const agent = isAgentsEndpoint(endpoint) ? agentsMap?.[conversation?.agent_id ?? ''] : null;
-  const assistant = isAssistantsEndpoint(endpoint)
-    ? assistantMap?.[endpoint]?.[conversation?.assistant_id ?? '']
+  const agent = isAgentsEndpoint(entityEndpoint) ? agentsMap?.[conversation?.agent_id ?? ''] : null;
+  const assistant = isAssistantsEndpoint(entityEndpoint)
+    ? assistantMap?.[entityEndpoint]?.[conversation?.assistant_id ?? '']
     : null;
   const agentAvatar = getAgentAvatarUrl(agent) ?? '';
   const agentName = agent?.name ?? '';
@@ -55,6 +57,19 @@ export default function EndpointIcon({
   const assistantName = assistant && (assistant.name ?? '');
   const entityAvatar = agentAvatar || assistantAvatar;
   const entityName = agentName || assistantName || '';
+  const isModelEndpoint =
+    !isAgentsEndpoint(entityEndpoint) && !isAssistantsEndpoint(entityEndpoint);
+
+  if (isModelEndpoint) {
+    return (
+      <ConvoIconURL
+        iconURL={deploymentBrand.assistantIconURL}
+        modelLabel={deploymentBrand.assistantName}
+        context={context}
+      />
+    );
+  }
+
   const hasCustomIcon =
     isImageURL(convoIconURL) || (convoIconURL !== '' && convoIconURL !== originalEndpoint);
 

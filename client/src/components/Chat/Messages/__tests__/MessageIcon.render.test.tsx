@@ -62,11 +62,13 @@ describe('MessageIcon render cycles', () => {
     expect(iconRenderCount.current).toBe(1);
   });
 
-  it('renders same-origin absolute model spec icon URLs directly', () => {
+  it('uses the deployment identity for a standard model regardless of its configured icon', () => {
     render(
       <MessageIcon
         iconData={{
           ...baseIconData,
+          endpoint: EModelEndpoint.openAI,
+          model: 'replaceable-provider-model',
           iconURL: '/assets/clickhouse-logo.svg',
         }}
       />,
@@ -74,7 +76,7 @@ describe('MessageIcon render cycles', () => {
 
     expect(screen.getByTestId('convo-icon-url')).toHaveAttribute(
       'data-icon-url',
-      '/assets/clickhouse-logo.svg',
+      '/assets/arvorepress-icon.png',
     );
   });
 
