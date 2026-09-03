@@ -11,6 +11,7 @@ export * from './mime';
 export * from './mistral/crud';
 export * from './ocr';
 export * from './parse';
+export * from './preview';
 export * from './preflight';
 export * from './rag';
 export * from './regexEngine';
