@@ -338,7 +338,7 @@ describe('executeWorkspaceTool', () => {
     ).rejects.toMatchObject({ reason: 'invalid' });
   });
 
-  test('accepts canonical search results for dot-segment request paths', async () => {
+  test('rejects non-canonical dot-segment request paths before dispatch', async () => {
     const fetchImpl = jest.fn().mockResolvedValue(
       Response.json({
         protocolVersion: 1,
@@ -362,7 +362,8 @@ describe('executeWorkspaceTool', () => {
         },
         fetchImpl,
       }),
-    ).resolves.toMatchObject({ matches: [{ path: 'src/app.ts' }] });
+    ).rejects.toMatchObject({ reason: 'invalid' });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   test('validates bounded file listings within the requested subtree', async () => {
@@ -391,15 +392,6 @@ describe('executeWorkspaceTool', () => {
       }),
     ).resolves.toMatchObject({ paths: ['src/app.ts', 'src/worker.ts'] });
 
-    fetchImpl.mockResolvedValueOnce(
-      Response.json({
-        protocolVersion: 1,
-        operation: 'list_files',
-        workspaceId: 'primary',
-        paths: ['src/app.ts', 'src/worker.ts'],
-        truncated: false,
-      }),
-    );
     await expect(
       executeWorkspaceTool({
         baseURL: 'https://code.example.com/v1',
@@ -413,7 +405,8 @@ describe('executeWorkspaceTool', () => {
         },
         fetchImpl,
       }),
-    ).resolves.toMatchObject({ paths: ['src/app.ts', 'src/worker.ts'] });
+    ).rejects.toMatchObject({ reason: 'invalid' });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
 
     fetchImpl.mockResolvedValueOnce(
       Response.json({
@@ -471,5 +464,79 @@ describe('executeWorkspaceTool', () => {
       }),
     ).rejects.toMatchObject({ reason: 'invalid' });
     expect(json).not.toHaveBeenCalled();
+  });
+
+  test('accepts a bounded command result from the selected attached worker', async () => {
+    const fetchImpl: CodeBridgeFetch = jest.fn(async () =>
+      Response.json({
+        protocolVersion: 1,
+        operation: 'execute_command',
+        workspaceId: 'primary',
+        exitCode: 2,
+        stdout: '',
+        stderr: 'not found',
+        truncated: false,
+        timedOut: false,
+      }),
+    );
+
+    await expect(
+      executeWorkspaceTool({
+        baseURL: 'https://code.example.com/v1',
+        authHeaders: { Authorization: 'Bearer jwt' },
+        request: {
+          protocolVersion: 1,
+          operation: 'execute_command',
+          workspaceId: 'primary',
+          command: 'test -f package.json',
+          maxOutputBytes: 256 * 1024,
+        },
+        fetchImpl,
+      }),
+    ).resolves.toMatchObject({ exitCode: 2, stderr: 'not found' });
+  });
+
+  test('rejects command requests and results outside protocol limits', async () => {
+    const fetchImpl: CodeBridgeFetch = jest.fn(async () =>
+      Response.json({
+        protocolVersion: 1,
+        operation: 'execute_command',
+        workspaceId: 'primary',
+        exitCode: 0,
+        stdout: 'x'.repeat(9),
+        stderr: '',
+        truncated: false,
+        timedOut: false,
+      }),
+    );
+
+    await expect(
+      executeWorkspaceTool({
+        baseURL: 'https://code.example.com/v1',
+        authHeaders: {},
+        request: {
+          protocolVersion: 1,
+          operation: 'execute_command',
+          workspaceId: 'primary',
+          command: 'printf x',
+          maxOutputBytes: 8,
+        },
+        fetchImpl,
+      }),
+    ).rejects.toMatchObject({ reason: 'invalid' });
+
+    await expect(
+      executeWorkspaceTool({
+        baseURL: 'https://code.example.com/v1',
+        authHeaders: {},
+        request: {
+          protocolVersion: 1,
+          operation: 'execute_command',
+          workspaceId: 'primary',
+          command: 'x'.repeat(32 * 1024 + 1),
+        },
+        fetchImpl,
+      }),
+    ).rejects.toMatchObject({ reason: 'invalid' });
   });
 });
