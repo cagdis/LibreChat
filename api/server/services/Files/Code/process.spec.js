@@ -246,6 +246,7 @@ const {
   searchWorkspace,
   listWorkspaceFiles,
   writeWorkspaceFile,
+  previewWorkspaceEdit,
   editWorkspaceFile,
   readSandboxImage,
   writeSandboxFile,
@@ -2053,6 +2054,7 @@ describe('Code Process', () => {
           executionProfile: 'stateful',
           bridgeWorkerId: 'worker-user-1',
           req: mockReq,
+          expected_base_sha256: 'a'.repeat(64),
         }),
       ).resolves.toBe(result);
 
@@ -2067,6 +2069,44 @@ describe('Code Process', () => {
               { oldText: 'draft', newText: 'ready' },
               { oldText: 'false', newText: 'true' },
             ],
+            expectedBaseSha256: 'a'.repeat(64),
+          },
+        }),
+      );
+    });
+
+    it('forwards a non-mutating attached-workspace edit preview', async () => {
+      const result = {
+        protocolVersion: 1,
+        operation: 'preview_edit',
+        workspaceId: 'primary',
+        path: 'src/app.ts',
+        content: 'prefix SECRET',
+        baseSha256: 'b'.repeat(64),
+        replacements: 1,
+        bytesWritten: 13,
+      };
+      mockExecuteWorkspaceTool.mockResolvedValueOnce(result);
+
+      await expect(
+        previewWorkspaceEdit({
+          file_path: 'src/app.ts',
+          edits: [{ oldText: ' SEC', newText: ' SECRET' }],
+          workspace_id: 'primary',
+          codeApiBaseUrl: 'https://attached-code.example.com/v1',
+          executionProfile: 'stateful',
+          req: mockReq,
+        }),
+      ).resolves.toBe(result);
+
+      expect(mockExecuteWorkspaceTool).toHaveBeenCalledWith(
+        expect.objectContaining({
+          request: {
+            protocolVersion: 1,
+            operation: 'preview_edit',
+            workspaceId: 'primary',
+            path: 'src/app.ts',
+            edits: [{ oldText: ' SEC', newText: ' SECRET' }],
           },
         }),
       );
