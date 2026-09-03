@@ -63,12 +63,15 @@ function AuthLayout({
     <div className="relative flex min-h-screen flex-col bg-surface-primary">
       <Banner />
       <BlinkAnimation active={isFetching}>
-        <div className="mt-6 h-10 w-full bg-cover">
+        <div className="mt-7 flex h-9 w-full items-center justify-center gap-3">
           <img
-            src="assets/logo.svg"
-            className="h-full w-full object-contain"
-            alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
+            src="assets/logo-arvorepress.png"
+            className="h-full w-auto max-w-xs object-contain brightness-0 dark:brightness-100"
+            alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'ÁrvorePress IA' })}
           />
+          <span className="text-sm font-medium tracking-wide text-text-secondary" aria-hidden="true">
+            IA
+          </span>
         </div>
       </BlinkAnimation>
       <DisplayError />
