@@ -1,1 +1,66 @@
-[]
+[
+  {
+    "id": "brand-01-fork-docs",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": [],
+    "compat_check": ["n/a - docs only"],
+    "doc": "docs/brand/patches/brand-01-fork-docs.md"
+  },
+  {
+    "id": "brand-02-tools-loader",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["api/server/services/start/tools.js"],
+    "compat_check": ["rebase", "boot da API com spec dummy no dir de tools"],
+    "doc": "docs/brand/patches/brand-02-tools-loader.md"
+  },
+  {
+    "id": "brand-03-visual-identity",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["client/vite.config.ts", "client/src/components/Auth/AuthLayout.tsx", "client/index.html"],
+    "compat_check": ["tsc client", "build frontend"],
+    "doc": "docs/brand/patches/brand-03-visual-identity.md"
+  },
+  {
+    "id": "brand-04-theme",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["client/src/App.jsx", "@librechat/client ThemeDefinition"],
+    "compat_check": ["tsc client", "jest arvorepress"],
+    "doc": "docs/brand/patches/brand-04-theme.md"
+  },
+  {
+    "id": "brand-05a-deployment-icons",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["client/src/components/Endpoints", "client/src/components/Chat/Messages/MessageIcon.tsx", "client/src/components/Share/MessageIcon.tsx"],
+    "compat_check": ["jest ConvoIcon EndpointIcon MessageIcon"],
+    "doc": "docs/brand/patches/brand-05a-deployment-icons.md"
+  },
+  {
+    "id": "brand-05b-deployment-labels",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["client/src/components/Chat/Messages", "client/src/components/Share/Message.tsx", "client/src/hooks/Input/useTextarea.ts", "client/src/components/Chat/Menus/Endpoints/ModelSelector.tsx"],
+    "compat_check": ["tsc client", "jest useTextarea"],
+    "doc": "docs/brand/patches/brand-05b-deployment-labels.md"
+  },
+  {
+    "id": "brand-06-file-preview",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["packages/api/src/files"],
+    "compat_check": ["tsc packages/api", "jest preview"],
+    "doc": "docs/brand/patches/brand-06-file-preview.md"
+  },
+  {
+    "id": "brand-07-dockerfile",
+    "commit": null,
+    "base_sha": "29f738dea",
+    "upstream_area": ["Dockerfile.brand", "api/server/services/start/tools.js (COPY)"],
+    "compat_check": ["rebuild local", "smoke test login/chat/DOCX"],
+    "doc": "docs/brand/patches/brand-07-dockerfile.md"
+  }
+]
