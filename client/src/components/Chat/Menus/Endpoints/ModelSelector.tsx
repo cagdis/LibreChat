@@ -131,10 +131,9 @@ function ModelSelectorContent() {
 
 export default function ModelSelector({ startupConfig }: ModelSelectorProps) {
   const interfaceConfig = startupConfig?.interface ?? defaultInterface;
-  const modelSpecs = startupConfig?.modelSpecs?.list ?? [];
 
-  // Hide the selector when modelSelect is false and there are no model specs to show
-  if (interfaceConfig.modelSelect === false && modelSpecs.length === 0) {
+  // A deployment that fixes the active model has nothing useful to select.
+  if (interfaceConfig.modelSelect === false) {
     return null;
   }
 

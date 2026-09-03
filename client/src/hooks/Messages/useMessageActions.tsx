@@ -14,6 +14,7 @@ import type { TMessageChatContext } from '~/common/types';
 import type { TMessageProps } from '~/common';
 import { useAssistantsMapContext, useAgentsMapContext } from '~/Providers';
 import useCopyToClipboard, { hasCopyableText } from './useCopyToClipboard';
+import { deploymentBrand } from '~/branding/deployment';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useGetAddedConvo } from '~/hooks/Chat';
 import { useLocalize } from '~/hooks';
@@ -137,7 +138,7 @@ export default function useMessageActions(props: TMessageActions) {
     } else if (assistant) {
       return assistant.name ?? 'Assistant';
     } else {
-      return message?.sender;
+      return deploymentBrand.assistantName;
     }
   }, [message, agent, assistant, UsernameDisplay, user, localize]);
 

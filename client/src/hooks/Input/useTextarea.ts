@@ -165,6 +165,10 @@ export default function useTextarea({
         return placeholder;
       }
 
+      if (!isAgent && !isAssistant) {
+        return localize('com_ui_message_placeholder');
+      }
+
       const sender =
         isAssistant || isAgent
           ? getEntityName({ name: entityName, isAgent, localize })

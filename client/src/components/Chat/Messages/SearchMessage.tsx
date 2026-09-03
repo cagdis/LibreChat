@@ -4,10 +4,10 @@ import type { TMessage } from 'librechat-data-provider';
 import type { TMessageProps, TMessageIcon } from '~/common';
 import AuthorHeader from '~/components/Chat/Messages/Content/Parts/AuthorHeader';
 import MinimalHoverButtons from '~/components/Chat/Messages/MinimalHoverButtons';
-import { getHeaderModelName } from '~/components/Chat/Messages/ui/HeaderLabel';
 import { getHeaderPrefixForScreenReader, getMessageAriaLabel } from '~/utils';
 import MessageRow from '~/components/Chat/Messages/ui/MessageRow';
 import Icon from '~/components/Chat/Messages/MessageIcon';
+import { deploymentBrand } from '~/branding/deployment';
 import { useAuthContext, useLocalize } from '~/hooks';
 import SearchContent from './Content/SearchContent';
 import SearchButtons from './SearchButtons';
@@ -87,10 +87,9 @@ function SearchMessage({ message }: Pick<TMessageProps, 'message'>) {
         ? (user?.name ?? '') || (user?.username ?? '')
         : localize('com_user_message');
     }
-    return message?.sender ?? '';
+    return deploymentBrand.assistantName;
   }, [
     message?.isCreatedByUser,
-    message?.sender,
     UsernameDisplay,
     user?.name,
     user?.username,
@@ -116,7 +115,7 @@ function SearchMessage({ message }: Pick<TMessageProps, 'message'>) {
           id={message.messageId}
           icon={<Icon iconData={iconData} />}
           label={messageLabel}
-          hoverLabel={getHeaderModelName(message.model)}
+          hoverLabel={message.isCreatedByUser ? undefined : deploymentBrand.assistantName}
           timestamp={message.createdAt ?? message.clientTimestamp}
           ariaLabel={getMessageAriaLabel(message, localize)}
           headerPrefix={getHeaderPrefixForScreenReader(message, localize)}

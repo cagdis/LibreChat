@@ -182,6 +182,14 @@ describe('useTextarea long-paste fallback', () => {
     }));
   });
 
+  it('uses the deployment message placeholder without exposing any model identity', async () => {
+    const { textArea } = renderTextareaHook();
+
+    await waitFor(() =>
+      expect(textArea).toHaveAttribute('placeholder', 'com_ui_message_placeholder'),
+    );
+  });
+
   it('keeps long pasted text inline while the composer is the answer box', () => {
     const { result } = renderTextareaHook(true);
     const event = createPasteEvent();
