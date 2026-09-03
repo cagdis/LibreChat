@@ -546,6 +546,19 @@ export interface ToolExecuteOptions {
 
 const MAX_READABLE_BYTES = 262_144;
 const MAX_BINARY_BYTES = 5 * 1024 * 1024;
+
+function truncateUtf8(value: string, maxBytes: number): string {
+  const bytes = Buffer.from(value, 'utf8');
+  if (bytes.byteLength <= maxBytes) {
+    return value;
+  }
+  let end = maxBytes;
+  while (end > 0 && (bytes[end] & 0xc0) === 0x80) {
+    end -= 1;
+  }
+  return bytes.subarray(0, end).toString('utf8');
+}
+
 /**
  * Inline ceiling for images pulled out of the code-execution sandbox —
  * deliberately tighter than {@link MAX_BINARY_BYTES}, which governs the
@@ -2250,13 +2263,22 @@ async function handleWorkspaceFileRead(
     }
     let payload = result.content;
     let locallyTruncated = false;
-    if (payload.length > MAX_READABLE_BYTES) {
-      payload = payload.slice(0, MAX_READABLE_BYTES);
+    let localNextStartLine: number | undefined;
+    if (Buffer.byteLength(payload, 'utf8') > MAX_READABLE_BYTES) {
+      payload = truncateUtf8(payload, MAX_READABLE_BYTES);
       locallyTruncated = true;
+      const lastCompleteLine = payload.lastIndexOf('\n');
+      if (lastCompleteLine >= 0) {
+        payload = payload.slice(0, lastCompleteLine);
+        localNextStartLine = result.startLine + payload.split('\n').length;
+      }
     }
     let numbered = addLineNumbers(payload, result.startLine);
     if (locallyTruncated) {
-      numbered += `\n\n[truncated at ${MAX_READABLE_BYTES} bytes]`;
+      numbered +=
+        localNextStartLine != null
+          ? `\n\n[truncated at ${MAX_READABLE_BYTES} bytes; more content is available; call read_file again with path "workspace/${filePath}" and start_line ${localNextStartLine}]`
+          : `\n\n[the line was truncated at ${MAX_READABLE_BYTES} bytes and cannot be paged by line]`;
     } else if (result.truncated && result.nextStartLine != null) {
       numbered += `\n\n[more content is available; call read_file again with path "workspace/${filePath}" and start_line ${result.nextStartLine}]`;
     }
