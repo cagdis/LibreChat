@@ -2,7 +2,7 @@
   {
     "id": "brand-01-fork-docs",
     "commit": "04570581026c",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [],
     "compat_check": [
       "n/a - docs only"
@@ -12,7 +12,7 @@
   {
     "id": "brand-02-tools-loader",
     "commit": "59939e91d49d",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "api/server/services/start/tools.js"
     ],
@@ -25,7 +25,7 @@
   {
     "id": "brand-03-visual-identity",
     "commit": "6b37e982b8c2",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "client/vite.config.ts",
       "client/src/components/Auth/AuthLayout.tsx",
@@ -40,7 +40,7 @@
   {
     "id": "brand-04-theme",
     "commit": "9f971d5adda1",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "client/src/App.jsx",
       "@librechat/client ThemeDefinition"
@@ -54,7 +54,7 @@
   {
     "id": "brand-05a-deployment-icons",
     "commit": "e23111431948",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "client/src/components/Endpoints",
       "client/src/components/Chat/Messages/MessageIcon.tsx",
@@ -68,7 +68,7 @@
   {
     "id": "brand-05b-deployment-labels",
     "commit": "cbc144c94ada",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "client/src/components/Chat/Messages",
       "client/src/components/Share/Message.tsx",
@@ -84,7 +84,7 @@
   {
     "id": "brand-06-file-preview",
     "commit": "b4936e40db18",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "packages/api/src/files"
     ],
@@ -97,7 +97,7 @@
   {
     "id": "brand-07-dockerfile",
     "commit": "a2e7a341eb8c",
-    "base_sha": "29f738dea",
+    "base_sha": "04e4fd6b68e7",
     "upstream_area": [
       "Dockerfile.brand",
       "api/server/services/start/tools.js (COPY)"
