@@ -90,6 +90,11 @@ import {
   getSafeErrorMetadata,
 } from '~/utils';
 import {
+  WorkspaceToolHttpError,
+  WORKSPACE_EDIT_MAX_COUNT,
+  WORKSPACE_WRITE_MAX_BYTES,
+} from '~/code/workspace';
+import {
   hasIntentArg,
   stripIntentArg,
   stripIntentLabelsFromToolDefinitions,
@@ -98,11 +103,6 @@ import {
 import { buildSkillPrimeMessage, isSkillFilePath, SKILL_FILE_PREFIX } from './skills';
 import { resolveCallerCapabilityProjectionSnapshot } from './callerCapabilities';
 import { createSkillContentDigest } from './compatibility';
-import {
-  WorkspaceToolHttpError,
-  WORKSPACE_EDIT_MAX_COUNT,
-  WORKSPACE_WRITE_MAX_BYTES,
-} from '~/code/workspace';
 import { parseFrontmatter } from '../skills/import';
 import { cleanCodeToolOutput } from './cleanup';
 import { primeSkillFiles } from './skillFiles';
