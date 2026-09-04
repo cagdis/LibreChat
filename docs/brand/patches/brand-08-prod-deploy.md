@@ -8,10 +8,9 @@
     em `/privacy/`; exigida pelo Google para publicar o consent OAuth externo)
   - `docs/brand/patches/brand-08-prod-deploy.md` (este doc)
   - `.gitignore` (`letsencrypt/` — contém as chaves privadas do ACME, nunca commitar)
-- Arquivos **locais, gitignorados de propósito** (config da máquina, como `.env`):
-  `docker-compose.override.yml`, `.env`, `librechat.yaml`. Correção à doc
-  antiga do brand-07: o override **não** é versionado (`.gitignore:116` ignora),
-  vive só no host do deploy.
+- Arquivos **de deploy versionados** (sem segredos — auditado; segredos ficam
+  só no `.env`, gitignorado): `docker-compose.override.yml`, `librechat.yaml`.
+  (`librechat.yaml` referencia `${DEEPSEEK_API_KEY}`, cuja chave real vive no `.env`.)
 - Infra fora do repo:
   - DNS (conta `cagdis-producao`, zona `cagdis.com.br`):
     `arvorepress` e `admin.arvorepress` → A `98.92.27.8`.

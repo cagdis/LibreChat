@@ -4,8 +4,9 @@
 - Motivo produto: runtime continua a imagem publicada LibreChat; só o front
   white-label + `packages/api/dist` + `tools.js` são sobrepostos. Mantém a
   camada local pequena e o deploy como `docker compose` com override.
-- Arquivos: `Dockerfile.brand` (novo). `docker-compose.override.yml` (local,
-  gitignorado — vive só no host do deploy) faz bind de `librechat.yaml` e builda esse Dockerfile.
+- Arquivos: `Dockerfile.brand` (novo). `docker-compose.override.yml` (versionado
+  à força com `git add -f`, pois o `.gitignore` upstream ignora; sem segredos)
+  faz bind de `librechat.yaml` (também versionado à força) e builda esse Dockerfile.
 - Área upstream tocada: nenhuma em código — mas o `COPY` de
   `api/server/services/start/tools.js` acopla ao patch brand-02: se o loader
   mudar de caminho, o Dockerfile quebra o build.

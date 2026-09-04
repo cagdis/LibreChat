@@ -1,0 +1,68 @@
+services:
+  api:
+    image: librechat-arvorepress:local
+    build:
+      context: .
+      dockerfile: Dockerfile.brand
+    volumes:
+      - type: bind
+        source: ./librechat.yaml
+        target: /app/librechat.yaml
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.librechat.rule=Host(`arvorepress.cagdis.com.br`)'
+      - 'traefik.http.routers.librechat.entrypoints=websecure'
+      - 'traefik.http.routers.librechat.tls.certresolver=leresolver'
+      - 'traefik.http.services.librechat.loadbalancer.server.port=3080'
+  admin-panel:
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.librechat-admin.rule=Host(`admin.arvorepress.cagdis.com.br`)'
+      - 'traefik.http.routers.librechat-admin.entrypoints=websecure'
+      - 'traefik.http.routers.librechat-admin.tls.certresolver=leresolver'
+      - 'traefik.http.services.librechat-admin.loadbalancer.server.port=3000'
+    environment:
+      - SESSION_COOKIE_SECURE=true
+  privacy:
+    image: nginx:alpine
+    volumes:
+      - type: bind
+        source: ./prod/privacy
+        target: /usr/share/nginx/html
+        read_only: true
+    labels:
+      - 'traefik.enable=true'
+      # Longer rule wins over the catch-all app router: /privacy goes here, everything else to the API.
+      - 'traefik.http.routers.librechat-privacy.rule=Host(`arvorepress.cagdis.com.br`) && PathPrefix(`/privacy`)'
+      - 'traefik.http.routers.librechat-privacy.entrypoints=websecure'
+      - 'traefik.http.routers.librechat-privacy.tls.certresolver=leresolver'
+      - 'traefik.http.services.librechat-privacy.loadbalancer.server.port=80'
+  traefik:
+    image: traefik:v3.6
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - './letsencrypt:/letsencrypt'
+    command:
+      - '--log.level=INFO'
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
+      - '--entrypoints.web.http.redirections.entrypoint.permanent=true'
+      - '--certificatesresolvers.leresolver.acme.tlschallenge=true'
+      - '--certificatesresolvers.leresolver.acme.email=contato@cagdis.com'
+      - '--certificatesresolvers.leresolver.acme.storage=/letsencrypt/acme.json'
+  mongodb:
+    command: mongod --noauth --setParameter diagnosticDataCollectionEnabled=false
+    environment:
+      # MongoDB 8's vendored TCMalloc crashes with per-CPU rseq caches on Linux
+      # kernels 6.19 through 7.0.13. Keep glibc's rseq registration enabled so
+      # TCMalloc falls back to per-thread caches until the host reboots into a
+      # kernel with the rseq fix (upstream 7.0.14+, or Ubuntu's backport).
+      GLIBC_TUNABLES: glibc.pthread.rseq=1
