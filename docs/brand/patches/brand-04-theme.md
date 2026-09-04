@@ -16,5 +16,16 @@
 - Compatibilidade após sync:
   1. `App.jsx` — regra: **manter o nosso**, reaplicar sobre o deles.
   2. Se `ThemeDefinition` mudar de versão, atualizar `arvorepress.ts`
-     (o spec quebra primeiro — é o sinal).
-  3. `npx tsc --noEmit` em `client`; `jest arvorepress`.
+     (o check leve quebra primeiro — é o sinal).
+  3. `npx tsc --noEmit` em `client`;
+     `npx jest src/themes/arvorepress.spec.ts --runInBand --coverage=false --silent`
+     em `client`.
+- Por que `jest` com flags e nunca bare: o spec tem 8 linhas, mas o
+  client-jest sobe `jsdom` + `babel-jest` + `collectCoverage: true`
+  (`client/jest.config.cjs`), o que estoura heap em máquina pequena e leva
+  ~200s. Com `--runInBand --coverage=false --silent` cai para ~30s.
+  (Tentativa de script node puro descartada: o bundle `@librechat/client`
+  não carrega fora de bundler/jest — interop Radix/Ariakit — então o
+  canônico continua sendo o spec via resolver do jest.)
+  Requer `npm install` atualizado (o rebase para `c302ae6f` trouxe `lucide` +
+  `morphicons`; sem eles o spec falha com `Cannot find module 'lucide'`).

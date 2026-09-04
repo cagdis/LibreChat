@@ -1,8 +1,8 @@
 [
   {
     "id": "brand-01-fork-docs",
-    "commit": "da3eba873432",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "f50f25dc5",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [],
     "compat_check": [
       "n/a - docs only"
@@ -11,8 +11,8 @@
   },
   {
     "id": "brand-02-tools-loader",
-    "commit": "4cdce239143c",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "3e59e765d",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "api/server/services/start/tools.js"
     ],
@@ -24,8 +24,8 @@
   },
   {
     "id": "brand-03-visual-identity",
-    "commit": "eed9f6b2d04f",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "57a73b51a",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "client/vite.config.ts",
       "client/src/components/Auth/AuthLayout.tsx",
@@ -39,22 +39,22 @@
   },
   {
     "id": "brand-04-theme",
-    "commit": "cd3d2cda9e7f",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "83ce6b8cd",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "client/src/App.jsx",
       "@librechat/client ThemeDefinition"
     ],
     "compat_check": [
       "tsc client",
-      "jest arvorepress"
+      "jest arvorepress --runInBand --coverage=false"
     ],
     "doc": "docs/brand/patches/brand-04-theme.md"
   },
   {
     "id": "brand-05a-deployment-icons",
-    "commit": "95267aeac280",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "1371ee5e8",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "client/src/components/Endpoints",
       "client/src/components/Chat/Messages/MessageIcon.tsx",
@@ -67,8 +67,8 @@
   },
   {
     "id": "brand-05b-deployment-labels",
-    "commit": "1f8f1b04ea3e",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "b8685723b",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "client/src/components/Chat/Messages",
       "client/src/components/Share/Message.tsx",
@@ -83,8 +83,8 @@
   },
   {
     "id": "brand-06-file-preview",
-    "commit": "7be228333257",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "7f1538a9f",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "packages/api/src/files"
     ],
@@ -96,8 +96,8 @@
   },
   {
     "id": "brand-07-dockerfile",
-    "commit": "ff0d24733935",
-    "base_sha": "04e4fd6b68e7",
+    "commit": "f99125cda",
+    "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "Dockerfile.brand",
       "api/server/services/start/tools.js (COPY)"
@@ -107,5 +107,19 @@
       "smoke test login/chat/DOCX"
     ],
     "doc": "docs/brand/patches/brand-07-dockerfile.md"
+  },
+  {
+    "id": "brand-08-prod-deploy",
+    "commit": "TBD",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "Dockerfile.brand (COPY/runtime)",
+      "api/server/routes/admin/auth.js"
+    ],
+    "compat_check": [
+      "rebuild com --pull",
+      "smoke https /, /login, /privacy/, Google permit/negado"
+    ],
+    "doc": "docs/brand/patches/brand-08-prod-deploy.md"
   }
 ]
