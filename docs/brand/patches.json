@@ -110,7 +110,7 @@
   },
   {
     "id": "brand-08-prod-deploy",
-    "commit": "TBD",
+    "commit": "ddd5c0ac2",
     "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "Dockerfile.brand (COPY/runtime)",
