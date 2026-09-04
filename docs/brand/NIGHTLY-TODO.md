@@ -1,0 +1,48 @@
+# TODO overnight — opencode (executar nesta ordem)
+
+Contexto: branch `brand/arvorepress-ia` (fork cagdis/LibreChat), deploy prod no ar
+(`arvorepress.cagdis.com.br` + Traefik + Google OAuth). Worktree limpo e pushado.
+Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commitar
+`.env`, `letsencrypt/`. Push SOMENTE com `git push origin brand/arvorepress-ia`
+(sem `--force`; rebase é ritual manual diurno). Se algo quebrar o boot, pare e registre.
+
+## T1. Conferir segredos de sessão (10 min)
+- Verificar no `.env` (NÃO commitar, só ler) se `JWT_SECRET` e `JWT_REFRESH_SECRET`
+  estão preenchidos com valores de ≥32 bytes.
+- Se vazios: gerar com `openssl rand -hex 32`, preencher, `docker compose up -d --force-recreate api`,
+  validar `https://arvorepress.cagdis.com.br/` 200.
+- Critério: valores fixos presentes; sessões sobrevivem a restart.
+
+## T2. Consistência ConvoIcon null (30 min)
+- `client/src/components/Endpoints/ConvoIcon.tsx:170`: com `conversation=null`
+  retorna `div` vazia; `EndpointIcon.tsx:63-71` retorna a marca. Unificar para a marca.
+- Atualizar `ConvoIcon.test.tsx` + doc `brand-05a-deployment-icons.md`.
+- Critério: `npx jest ConvoIcon EndpointIcon --runInBand --coverage=false` verde.
+
+## T3. Placeholder i18n além do `en` (30 min)
+- `com_ui_message_placeholder` existe só em `client/src/locales/en/translation.json`.
+  Adicionar `pt-BR` ("Digite sua mensagem") + `es`, `fr`, `de` via mesma tradução,
+  seguindo o padrão das chaves vizinhas.
+- Critério: `tsc --noEmit` em `client` limpo nos arquivos tocados; UI em pt-BR exibe o placeholder.
+
+## T4. Descobrir por que o CI não roda na branch (45 min)
+- PR #1 (cagdis/LibreChat) mostra "no checks". Inspecionar `.github/workflows/`
+  (filtros de `branches:`/`paths:`) e `gh run list --repo cagdis/LibreChat`.
+- Entregar diagnóstico em `docs/brand/CI.md` (NÃO alterar workflows sem aprovação diurna).
+- Critério: doc explica a causa + proposta de fix.
+
+## T5. Roteiro de backup (60 min, só roteiro + scripts, NÃO executar dump em prod)
+- Escrever `docs/brand/BACKUP.md`: dump Mongo (`mongodump` p/ S3 conta cagdis-antiga),
+  backup `letsencrypt/`, frequência sugerida, restore testado em staging (não fazer).
+- Critério: doc + comandos prontos para revisão diurna.
+
+## T6. Smoke pós-tudo (15 min)
+- `https://arvorepress.cagdis.com.br/` 200 + `<title>ÁrvorePress IA</title>`,
+  `/login` 200, `/privacy/` 200, `https://admin.arvorepress.cagdis.com.br/` 200,
+  `docker ps` tudo Up, sem `Cannot find module` nos logs do api.
+- Critério: checklist OK registrado no commit final.
+
+## GATEADA (não executar sem aprovação explícita)
+- brand-09 always-on tools (plano apresentado em 04/09; MCP fora, memory/ask ligados).
+- Runner self-hosted / deploy automático.
+- Publicar consent Google além do atual / novos domínios em allowedDomains.
