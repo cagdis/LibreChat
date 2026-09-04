@@ -25,16 +25,32 @@ Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commi
   seguindo o padrão das chaves vizinhas.
 - Critério: `tsc --noEmit` em `client` limpo nos arquivos tocados; UI em pt-BR exibe o placeholder.
 
-## T4. Descobrir por que o CI não roda na branch (45 min)
-- PR #1 (cagdis/LibreChat) mostra "no checks". Inspecionar `.github/workflows/`
-  (filtros de `branches:`/`paths:`) e `gh run list --repo cagdis/LibreChat`.
-- Entregar diagnóstico em `docs/brand/CI.md` (NÃO alterar workflows sem aprovação diurna).
-- Critério: doc explica a causa + proposta de fix.
+## T4. Always-on: frontend sem toggles (120 min)
+- Objetivo: nenhum botão de ferramenta no composer; tudo ligado sempre ("mágico").
+- `client/src/components/Chat/Input/ToolsDropdown.tsx:378-399`: remover o botão do composer.
+- `client/src/components/Chat/Input/BadgeRow.tsx:333,373-382`: remover badges
+  (`WebSearch`, `CodeInterpreter`, `FileSearch`, `Skills`, `Memory`, `Artifacts`, `MCPSelect`).
+- `client/src/hooks/Chat/useChatFunctions.ts:373,697-725` (`getEphemeralAgent`):
+  forçar `web_search, file_search, execute_code, artifacts, skills, memory,
+  ask_user_question = true`, ignorando o átomo Recoil.
+- `client/src/hooks/Plugins/useToolToggle.ts:80-123` + `Providers/BadgeRowContext.tsx:80-278`:
+  parar de ler `localStorage` (`LAST_*_TOGGLE_*`, `*pinned`) — usuários existentes
+  têm `false` gravado e isso anularia o always-on.
+- MCP fora do escopo (nenhum servidor configurado); Agent Builder fora (usamos
+  `modelSpecs.enforce`, só conversa efêmera).
+- Atualizar specs afetados; documentar como `docs/brand/patches/brand-09-always-on.md`
+  + entrada em `patches.json` (base_sha = `c302ae6f35b4`, commit = SHA do commit).
+- Critério: `tsc --noEmit` limpo nos tocados; jest dos specs tocados
+  (`--runInBand --coverage=false`) verde; composer sem nenhum botão de ferramenta.
 
-## T5. Roteiro de backup (60 min, só roteiro + scripts, NÃO executar dump em prod)
-- Escrever `docs/brand/BACKUP.md`: dump Mongo (`mongodump` p/ S3 conta cagdis-antiga),
-  backup `letsencrypt/`, frequência sugerida, restore testado em staging (não fazer).
-- Critério: doc + comandos prontos para revisão diurna.
+## T5. Always-on: trava no backend (60 min)
+- UI é cosmética: forçar na síntese do agente efêmero em
+  `packages/api/src/agents/load.ts:67-120` (ignorar `req.body.ephemeralAgent`
+  p/ built-ins); espelhar em `api/server/controllers/agents/openai.js:490-498`
+  e `responses.js:734-742` se aplicável ao endpoint em uso.
+- Não mexer em `ToolService.js:774-828` (capabilities do yaml já habilitam tudo).
+- Critério: `tsc` em `packages/api`; teste manual via API registra `tools` ativos
+  mesmo com `ephemeralAgent` tudo-false no request.
 
 ## T6. Smoke pós-tudo (15 min)
 - `https://arvorepress.cagdis.com.br/` 200 + `<title>ÁrvorePress IA</title>`,
@@ -43,6 +59,5 @@ Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commi
 - Critério: checklist OK registrado no commit final.
 
 ## GATEADA (não executar sem aprovação explícita)
-- brand-09 always-on tools (plano apresentado em 04/09; MCP fora, memory/ask ligados).
 - Runner self-hosted / deploy automático.
 - Publicar consent Google além do atual / novos domínios em allowedDomains.
