@@ -10,6 +10,7 @@ Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commi
 `.env`, `letsencrypt/`. Push SOMENTE com `git push origin brand/arvorepress-ia`
 (sem `--force`; rebase é ritual manual diurno). Se algo quebrar o boot, pare e registre.
 Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os passos literais; se o Intent for inalcançável, registre o bloqueio e siga para a próxima tarefa (nunca improvise credencial, escopo ou deploy parcial silencioso). Se algo quebrar o boot, TENTE CONSERTAR (rebuild com `--pull`, `up -d --force-recreate`, ler logs) — só pare e registre se esgotar as alternativas, pois há janela livre até de manhã.
+Telemetria: ao concluir (ou travar em) cada tarefa, anexar linha em `docs/brand/NIGHTLY-PROGRESS.md` com hora, tarefa, resultado e SHA do commit — é o diário de bordo da noite. Fazer o mesmo ao iniciar o turno.
 
 ## T1. Conferir segredos de sessão (10 min)
 **Intent: de manhã, nenhum restart derruba sessões ativas; segredo de sessão é permanente e auditável.**
