@@ -121,5 +121,22 @@
       "smoke https /, /login, /privacy/, Google permit/negado"
     ],
     "doc": "docs/brand/patches/brand-08-prod-deploy.md"
+  },
+  {
+    "id": "brand-09-always-on",
+    "commit": "TBD",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "client/src/components/Chat/Input",
+      "client/src/store/agents.ts",
+      "packages/api/src/agents/load.ts",
+      "api/server/controllers/agents"
+    ],
+    "compat_check": [
+      "tsc client + packages/api",
+      "jest ConvoIcon/EndpointIcon/load",
+      "smoke: composer sem botoes, default + agent chat"
+    ],
+    "doc": "docs/brand/patches/brand-09-always-on.md"
   }
 ]

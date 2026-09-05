@@ -495,7 +495,8 @@ const executeOpenAIChatCompletion = async (envelope, { req, res }) => {
         getRoleByName: db.getRoleByName,
       });
       const skillsCapabilityEnabled = enabledCapabilities.has(AgentCapabilities.skills);
-      const ephemeralSkillsToggle = request.ephemeralAgent?.skills === true;
+      /** Brand always-on (brand-09): skills catalog ignores the client toggle. */
+      const ephemeralSkillsToggle = true;
       const accessibleSkillIds = skillsCapabilityEnabled
         ? withDeploymentSkillIds(
             await findAccessibleResources({

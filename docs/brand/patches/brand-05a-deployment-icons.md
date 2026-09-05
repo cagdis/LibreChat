@@ -16,7 +16,7 @@
   - Endpoint de modelo (não-agent/assistant) → `deploymentBrand` sempre.
   - Agent/Assistant → avatar/nome da entidade, nunca a marca.
   - `EndpointIcon` com conversa `null` retorna a marca; `ConvoIcon` com conversa
-    `null` retorna `div` vazia (inconsistência conhecida, sem impacto hoje).
+    `null` também retorna a marca (unificado em T2 overnight; antes era `div` vazia).
   - Em `ConvoIcon`, `renderArt()` é inalcançável para modelos (early-return
     sempre pega) — conflito futuro ali é só aparente.
 - Compatibilidade após sync:

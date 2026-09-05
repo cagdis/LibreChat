@@ -416,7 +416,7 @@ describe('loadAgent', () => {
     expect(result!.name).toBe('Test Agent');
   });
 
-  test('should handle ephemeral agent with no MCP servers', async () => {
+  test('brand always-on: client toggles cannot disable built-in tools', async () => {
     const { EPHEMERAL_AGENT_ID } = Constants;
 
     const mockReq = {
@@ -442,7 +442,10 @@ describe('loadAgent', () => {
     );
 
     if (result) {
-      expect(result.tools).toEqual([]);
+      // Brand deployment: explicit `false` flags are ignored; built-ins stay on.
+      for (const tool of ['execute_code', 'web_search', 'file_search', 'memory', 'ask_user_question']) {
+        expect(result.tools).toContain(tool);
+      }
       expect(result.instructions).toBe('Simple instructions');
     } else {
       expect(result).toBeFalsy();
@@ -557,7 +560,8 @@ describe('loadAgent', () => {
       deps,
     );
 
-    expect(withoutFlag?.tools).not.toContain('ask_user_question');
+    // Brand always-on: neither spec nor client can disable built-ins.
+    expect(withoutFlag?.tools).toContain('ask_user_question');
   });
 
   test('synthesizes background tool_options for eligible MCP tools from the ephemeralAgent flag', async () => {
@@ -1094,7 +1098,9 @@ describe('loadAgent', () => {
     );
 
     if (result) {
-      expect(result.tools).toEqual([]);
+      for (const tool of ['execute_code', 'web_search', 'file_search', 'memory', 'ask_user_question']) {
+        expect(result.tools).toContain(tool);
+      }
     } else {
       expect(result).toBeFalsy();
     }
@@ -1227,7 +1233,10 @@ describe('loadAgent', () => {
       );
 
       if (result) {
-        expect(result.tools).toEqual(['tool_mcp_server1']);
+        expect(result.tools).toContain('tool_mcp_server1');
+        for (const tool of ['execute_code', 'web_search', 'file_search', 'memory', 'ask_user_question']) {
+          expect(result.tools).toContain(tool);
+        }
         expect(result.tools).not.toContain('malformed_tool_name');
         expect(result.tools).not.toContain('tool__server1');
         expect(result.tools).not.toContain('tool_mcp_server2');

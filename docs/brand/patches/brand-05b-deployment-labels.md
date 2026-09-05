@@ -9,12 +9,13 @@
   - `hooks/Messages/useMessageActions.tsx` (nome de fallback marca)
   - `hooks/Input/useTextarea.ts` + `locales/en/translation.json`
     (placeholder `com_ui_message_placeholder` quando não é agent/assistant;
-    só `en` — demais idiomas via automação externa)
+    só `en` — demais idiomas via automação externa; T3 overnight adicionou pt-BR/es/fr/de)
   - `hooks/Input/useTextarea.spec.tsx` (novo teste do placeholder)
-  - `Chat/Menus/Endpoints/ModelSelector.tsx` (retorna `null` sempre que
-    `modelSelect === false`; deployment com modelo fixo não tem o que escolher)
-  - `librechat.yaml` NÃO versionado aqui, mas coerente: `modelSelect: false` +
-    `modelSpecs.enforce: true` com DeepSeek rotulado `ÁrvorePress IA`.
+  - `Chat/Menus/Endpoints/ModelSelector.tsx` (HISTÓRICO: retornava `null` com
+    `modelSelect === false`; regra morta no brand-09, que filtra o seletor em vez
+    de escondê-lo — ver `brand-09-always-on.md`)
+  - `librechat.yaml` (versionado): HISTÓRICO `modelSelect: false` + `enforce: true`;
+    brand-09 virou p/ `true`/`false` (agents exigem).
 - Área upstream tocada: headers de mensagem e composer — mudam com frequência.
 - Invariantes:
   - Decisão consciente: `hoverLabel` de modelo some (perde-se debug do modelo

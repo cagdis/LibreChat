@@ -182,7 +182,11 @@ export function ModelSelectorProvider({ children, startupConfig }: ModelSelector
     if (!searchValue) {
       return null;
     }
-    const allItems = [...modelSpecs, ...mappedEndpoints];
+    const allItems = [
+      // Brand deployment (brand-09/T7): search must not leak hidden options either.
+      ...modelSpecs.filter((spec) => !spec.group && spec.default === true),
+      ...mappedEndpoints.filter((endpoint) => endpoint.value === EModelEndpoint.agents),
+    ];
     return filterItems(allItems, searchValue, agentsMap, assistantsMap || {}, localize);
   }, [searchValue, modelSpecs, mappedEndpoints, agentsMap, assistantsMap, localize]);
 

@@ -9,7 +9,7 @@ cache: true
 
 interface:
   customWelcome: 'Que pauta vamos transformar em notícia hoje?'
-  modelSelect: false
+  modelSelect: true
   marketplace:
     use: false
   webSearch: true
@@ -61,7 +61,7 @@ endpoints:
       modelDisplayLabel: ÁrvorePress IA
 
 modelSpecs:
-  enforce: true
+  enforce: false
   prioritize: true
   list:
     - name: deepseek-default
@@ -134,3 +134,11 @@ modelSpecs:
 #       redirect_uri: 'https://arvorepress.cagdis.com.br/api/mcp/calendar/oauth/callback'
 #       token_exchange_method: default_post
 #       token_endpoint_auth_methods_supported: ['client_secret_post']
+
+mcpServers:
+  runrun:
+    type: streamable-http
+    url: 'https://arvore-mcp-runrun.cagdis.com/mcp'
+    timeout: 60000
+    initTimeout: 120000
+    startup: false
