@@ -10,3 +10,4 @@
 - 2026-09-04 23:35:30 T6 parcial: runrun declarado+registrado (lazy). Trio Google: skeleton pronto, falta console do Daniel.
 - 2026-09-04 23:35:30 T7 code DONE: seletor filtrado + enforce:false/modelSelect:true + brand-09 doc. Visual fica p/ Daniel.
 - 2026-09-04 23:35:30 T8 parcial: boot+URLs+sem crash OK; chat real e visual ficam p/ Daniel.
+- 2026-09-04 23:41:54 T9 DONE (spike/project-sharing pushada): schema members+instructions+fileIds, metodos share/unshare/access/resolve (spec 6/6), campo Instructions na UI, DEMO+DECISION (veredito: VIAVEL, 2 fases, 2-4 sem). Zero diff na brand.
