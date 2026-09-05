@@ -117,16 +117,18 @@ Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os pass
 - Alvo funcional (paridade): projeto com (a) instruções custom → system prompt dos chats
   do projeto; (b) arquivos → contexto (file_search/file context); (c) compartilhar com
   outros usuários (view + edit), por usuário e por domínio.
-- Base de pesquisa (já levantado, reler antes de codar): issue #13496 (spec oficial:
-  Project como principal no ACL, view/edit, feed compartilhado), #13051 (ACL de shared
-  links, mergeado — reutilizar primitivos, não criar 2º sistema), #13467 (Projects
-  pessoais, mergeado, já no tree: `client/src/components/Projects/`, dashboard+sidebar+composer).
-- Roteiro: (1) auditar modelo `Project` atual (tem instructions? files? como o composer
-  com escopo injeta contexto hoje); (2) mapear ACL existente (principals, bits, membership);
-  (3) desenhar em `docs/brand/spike-sharing/DECISION.md`: escopo mínimo vertical que entrega
-  a paridade sem reescrever o ACL; (4) SÓ então prototipar o menor slice vertical
-  ponta-a-ponta (ex. compartilhar projeto view-only com 1 usuário via testes automatizados,
-  sem UI completa); (5) registrar Complexidade total estimada (dias + riscos de rebase).
+- Base de pesquisa (AUDITORIA FEITA 04/09: `ChatProject` em
+  `packages/data-schemas/src/schema/chatProject.ts` tem SÓ `name, description, user,
+  conversationCount` — projeto pessoal é mero agrupador de chats, SEM instructions,
+  SEM files, SEM sharing. Ou seja: antes de compartilhar, é preciso CRIAR instruções
+  e arquivos no projeto. Reler ainda: #13496, #13051, `client/src/components/Projects/`.
+- Roteiro: (1) mapear ACL existente + pontos de injeção do composer com escopo
+  (como instructions/files ENTRARIAM numa conversa: system prompt? file_search?);
+  (2) desenhar em `docs/brand/spike-sharing/DECISION.md`: modelo de dados estendido
+  (instructions, file refs, members/view-edit) + fases (fase 1: instructions+files
+  owner-only; fase 2: sharing) + escopo mínimo vertical; (3) SÓ então prototipar o
+  menor slice (ex. instructions do projeto virando system prompt do dono, com teste);
+  (4) registrar estimativa total (dias + riscos de rebase).
 - Critério: `DECISION.md` com veredito + (protótipo OU motivo documentado de inviabilidade
   numa noite); zero diff na `brand`; zero restart de prod causado pelo spike.
 
