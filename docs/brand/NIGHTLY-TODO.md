@@ -108,6 +108,29 @@ Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os pass
   `docker ps` tudo Up, sem `Cannot find module` nos logs do api.
 - Critério: checklist OK registrado no commit final.
 
+## T9. SPIKE isolado: compartilhamento de projetos (ChatGPT/Claude parity) (restante da noite)
+**Intent: de manhã o Daniel tem um veredito técnico (viável/inviável + caminho) e, se viável, um protótipo funcional numa branch descartável — a `brand` e a homologação amanhecem INTACTAS mesmo se o spike explodir.**
+- ISOLAMENTO (inviolável): `git checkout -b spike/project-sharing origin/brand/arvorepress-ia`;
+  TODO o trabalho commita e pusha SÓ em `spike/project-sharing`; NUNCA merge/nada na `brand`;
+  NUNCA `docker compose` com código do spike (sem deploy do spike!); se a branch prestar,
+  vira proposta diurna — se não, `git branch -D` e ninguém soube.
+- Alvo funcional (paridade): projeto com (a) instruções custom → system prompt dos chats
+  do projeto; (b) arquivos → contexto (file_search/file context); (c) compartilhar com
+  outros usuários (view + edit), por usuário e por domínio.
+- Base de pesquisa (já levantado, reler antes de codar): issue #13496 (spec oficial:
+  Project como principal no ACL, view/edit, feed compartilhado), #13051 (ACL de shared
+  links, mergeado — reutilizar primitivos, não criar 2º sistema), #13467 (Projects
+  pessoais, mergeado, já no tree: `client/src/components/Projects/`, dashboard+sidebar+composer).
+- Roteiro: (1) auditar modelo `Project` atual (tem instructions? files? como o composer
+  com escopo injeta contexto hoje); (2) mapear ACL existente (principals, bits, membership);
+  (3) desenhar em `docs/brand/spike-sharing/DECISION.md`: escopo mínimo vertical que entrega
+  a paridade sem reescrever o ACL; (4) SÓ então prototipar o menor slice vertical
+  ponta-a-ponta (ex. compartilhar projeto view-only com 1 usuário via testes automatizados,
+  sem UI completa); (5) registrar Complexidade total estimada (dias + riscos de rebase).
+- Critério: `DECISION.md` com veredito + (protótipo OU motivo documentado de inviabilidade
+  numa noite); zero diff na `brand`; zero restart de prod causado pelo spike.
+
+
 ## GATEADA (não executar sem aprovação explícita)
 - Runner self-hosted / deploy automático.
 - Publicar consent Google além do atual / novos domínios em allowedDomains.
