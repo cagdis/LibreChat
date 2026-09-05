@@ -54,14 +54,23 @@ Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commi
 - Critério: `tsc` em `packages/api`; teste manual via API registra `tools` ativos
   mesmo com `ephemeralAgent` tudo-false no request.
 
-## T6. MCPs: runrun.it full + trio Google até o limite sem segredo (90 min)
+## T6. MCPs: runrun.it full + trio Google oficial (90 min)
 - runrun.it (`https://arvore-mcp-runrun.cagdis.com/mcp`, Streamable HTTP, sem auth —
   `initialize` já responde `arvore-mcp-runrun 1.0.0`): declarar em `librechat.yaml`
   `mcpServers`, restart, smoke `tools/list` via API, confirmar aparecendo na UI.
-- Google Drive/Gmail/Calendar: SEM segredo não dá para fechar click-conect; entregar:
-  (a) qual servidor/ponte usar e por quê; (b) skeleton comentado no yaml;
-  (c) shopping-list exata do que falta (chave ou URI de redirect no console Google).
-- Critério: runrun.it clicável na UI de manhã; doc do trio Google pronta.
+- Google Drive/Gmail/Calendar = **MCPs oficiais do Google** (gmailmcp/drivemcp/
+  calendarmcp.googleapis.com) + OAuth por usuário no LibreChat — igual ChatGPT/Claude,
+  sem terceiro, sem ponte self-hosted. Doc: librechat.ai/docs/mcp_servers/google_workspace.
+  FEITO via gcloud: APIs + MCP services habilitados no projeto. Esqueleto comentado
+  já em `librechat.yaml` + vars vazias no `.env`.
+- FALTA (console, ~5 min do Daniel de manhã): no OAuth client, adicionar redirect URIs
+  `https://arvorepress.cagdis.com.br/api/mcp/{gmail,drive,calendar}/oauth/callback`;
+  em Data Access adicionar os scopes do doc; colar client ID/secret em
+  `GOOGLE_WORKSPACE_MCP_CLIENT_*` no `.env`. Pode reusar o client atual ou criar
+  "LibreChat Google Workspace MCP". Depois: descomentar yaml, restart, cada usuário
+  clica Conectar na UI. Atenção: scopes Gmail/Drive são sensíveis → aviso de app
+  não verificado até completar verificação Google (só polimento futuro).
+- Critério: runrun.it clicável na UI de manhã; trio Google pronto p/ ligar após console.
 
 ## T7. Smoke pós-tudo (15 min)
 - `https://arvorepress.cagdis.com.br/` 200 + `<title>ÁrvorePress IA</title>`,
