@@ -3,7 +3,7 @@ import {
   MAX_CHAT_PROJECT_DESCRIPTION_LENGTH,
 } from 'librechat-data-provider';
 import type { FilterQuery, Model, SortOrder, Types } from 'mongoose';
-import type { IChatProject, IChatProjectDocument, IConversation } from '~/types';
+import type { ChatProjectMemberRole, IChatProject, IChatProjectDocument, IConversation } from '~/types';
 import { buildRetentionVisibilityFilter } from '~/utils/retention';
 import { isValidObjectIdString } from '~/utils/objectId';
 import { escapeRegExp } from '~/utils/string';
@@ -15,6 +15,10 @@ export type ChatProjectSortDirection = 'asc' | 'desc';
 export type CreateChatProjectInput = {
   name: string;
   description?: string | null;
+  /** Spike MVP: system-prompt instructions for chats in this project. */
+  instructions?: string | null;
+  /** Spike MVP: project context file IDs. */
+  fileIds?: string[] | null;
 };
 
 export type UpdateChatProjectInput = Partial<CreateChatProjectInput>;
@@ -56,6 +60,31 @@ export interface ChatProjectMethods {
     input: UpdateChatProjectInput,
   ): Promise<IChatProject | null>;
   deleteChatProject(user: string, projectId: string): Promise<DeleteChatProjectResult>;
+  /** Spike MVP: grant view/edit membership (owner only). */
+  shareChatProject(
+    ownerId: string,
+    projectId: string,
+    targetUserId: string,
+    role: ChatProjectMemberRole,
+  ): Promise<IChatProject | null>;
+  /** Spike MVP: revoke membership (owner only). */
+  unshareChatProject(
+    ownerId: string,
+    projectId: string,
+    targetUserId: string,
+  ): Promise<IChatProject | null>;
+  /** Spike MVP: read a project as owner OR member (null otherwise). */
+  getAccessibleChatProject(
+    userId: string,
+    projectId: string,
+  ): Promise<(IChatProject & { effectiveRole: 'owner' | ChatProjectMemberRole }) | null>;
+  /** Spike MVP: list owned + shared-with-me projects. */
+  listAccessibleChatProjects(userId: string): Promise<IChatProject[]>;
+  /** Spike MVP: resolved turn context for prompt assembly (SPEC §4). */
+  resolveProjectContext(
+    userId: string,
+    projectId: string,
+  ): Promise<{ instructions: string; fileIds: string[]; role: 'owner' | ChatProjectMemberRole } | null>;
   assignConversationToProject(
     user: string,
     conversationId: string,
@@ -99,6 +128,10 @@ function sanitizeProjectInput(input: CreateChatProjectInput): CreateChatProjectI
   return {
     name: input.name.trim().slice(0, MAX_CHAT_PROJECT_NAME_LENGTH),
     description: input.description?.trim().slice(0, MAX_CHAT_PROJECT_DESCRIPTION_LENGTH) ?? '',
+    instructions: input.instructions?.trim().slice(0, 8000) ?? '',
+    fileIds: Array.isArray(input.fileIds)
+      ? input.fileIds.filter((id): id is string => typeof id === 'string' && id.length > 0)
+      : [],
   };
 }
 
@@ -411,7 +444,7 @@ export function createChatProjectMethods(mongoose: typeof import('mongoose')): C
     }
 
     const ChatProject = mongoose.models.ChatProject as Model<IChatProjectDocument>;
-    const update: Partial<Pick<IChatProject, 'name' | 'description'>> = {};
+    const update: Partial<Pick<IChatProject, 'name' | 'description' | 'instructions' | 'fileIds'>> = {};
     if (typeof input.name === 'string') {
       const name = input.name.trim().slice(0, MAX_CHAT_PROJECT_NAME_LENGTH);
       if (!name) {
@@ -422,6 +455,14 @@ export function createChatProjectMethods(mongoose: typeof import('mongoose')): C
     if (input.description !== undefined) {
       update.description =
         input.description?.trim().slice(0, MAX_CHAT_PROJECT_DESCRIPTION_LENGTH) ?? '';
+    }
+    if (input.instructions !== undefined) {
+      update.instructions = input.instructions?.trim().slice(0, 8000) ?? '';
+    }
+    if (input.fileIds !== undefined) {
+      update.fileIds = Array.isArray(input.fileIds)
+        ? input.fileIds.filter((id): id is string => typeof id === 'string' && id.length > 0)
+        : [];
     }
 
     return await ChatProject.findOneAndUpdate(
@@ -525,6 +566,113 @@ export function createChatProjectMethods(mongoose: typeof import('mongoose')): C
     return await refreshChatProjectStatsForUser(mongoose, user, projectId);
   }
 
+  /** Spike MVP sharing: owner-gated membership on the members array. */
+  async function shareChatProject(
+    ownerId: string,
+    projectId: string,
+    targetUserId: string,
+    role: ChatProjectMemberRole,
+  ): Promise<IChatProject | null> {
+    if (!isValidObjectIdString(projectId) || !targetUserId || targetUserId === ownerId) {
+      return null;
+    }
+    if (role !== 'viewer' && role !== 'editor') {
+      throw new Error('Invalid member role');
+    }
+    const ChatProject = mongoose.models.ChatProject as Model<IChatProjectDocument>;
+    const owned = await ChatProject.findOne({
+      _id: new mongoose.Types.ObjectId(projectId),
+      user: ownerId,
+    })
+      .select('_id')
+      .lean<IChatProject>();
+    if (!owned) {
+      return null;
+    }
+    return await ChatProject.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(projectId), user: ownerId },
+      { $pull: { members: { userId: targetUserId } } },
+      { new: false },
+    )
+      .then(() =>
+        ChatProject.findOneAndUpdate(
+          { _id: new mongoose.Types.ObjectId(projectId), user: ownerId },
+          { $push: { members: { userId: targetUserId, role } } },
+          { new: true, runValidators: true },
+        ).lean<IChatProject>(),
+      );
+  }
+
+  async function unshareChatProject(
+    ownerId: string,
+    projectId: string,
+    targetUserId: string,
+  ): Promise<IChatProject | null> {
+    if (!isValidObjectIdString(projectId)) {
+      return null;
+    }
+    const ChatProject = mongoose.models.ChatProject as Model<IChatProjectDocument>;
+    return await ChatProject.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(projectId), user: ownerId },
+      { $pull: { members: { userId: targetUserId } } },
+      { new: true },
+    ).lean<IChatProject>();
+  }
+
+  async function getAccessibleChatProject(
+    userId: string,
+    projectId: string,
+  ): Promise<(IChatProject & { effectiveRole: 'owner' | ChatProjectMemberRole }) | null> {
+    if (!isValidObjectIdString(projectId)) {
+      return null;
+    }
+    const ChatProject = mongoose.models.ChatProject as Model<IChatProjectDocument>;
+    const project = await ChatProject.findOne({
+      _id: new mongoose.Types.ObjectId(projectId),
+      $or: [{ user: userId }, { 'members.userId': userId }],
+    }).lean<IChatProject>();
+    if (!project) {
+      return null;
+    }
+    if (project.user === userId) {
+      return { ...project, effectiveRole: 'owner' as const };
+    }
+    const membership = (project.members ?? []).find((m) => m.userId === userId);
+    if (!membership) {
+      return null;
+    }
+    return { ...project, effectiveRole: membership.role };
+  }
+
+  async function listAccessibleChatProjects(userId: string): Promise<IChatProject[]> {
+    const ChatProject = mongoose.models.ChatProject as Model<IChatProjectDocument>;
+    return await ChatProject.find({
+      $or: [{ user: userId }, { 'members.userId': userId }],
+    })
+      .sort({ lastConversationAt: -1, _id: -1 })
+      .limit(100)
+      .lean<IChatProject[]>();
+  }
+
+  async function resolveProjectContext(
+    userId: string,
+    projectId: string,
+  ): Promise<{
+    instructions: string;
+    fileIds: string[];
+    role: 'owner' | ChatProjectMemberRole;
+  } | null> {
+    const accessible = await getAccessibleChatProject(userId, projectId);
+    if (!accessible) {
+      return null;
+    }
+    return {
+      instructions: accessible.instructions ?? '',
+      fileIds: accessible.fileIds ?? [],
+      role: accessible.effectiveRole,
+    };
+  }
+
   return {
     createChatProject,
     getChatProject,
@@ -533,5 +681,10 @@ export function createChatProjectMethods(mongoose: typeof import('mongoose')): C
     deleteChatProject,
     assignConversationToProject,
     refreshChatProjectStats,
+    shareChatProject,
+    unshareChatProject,
+    getAccessibleChatProject,
+    listAccessibleChatProjects,
+    resolveProjectContext,
   };
 }

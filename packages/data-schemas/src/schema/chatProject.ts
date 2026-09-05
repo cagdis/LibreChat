@@ -21,6 +21,33 @@ const chatProjectSchema: Schema<IChatProjectDocument> = new Schema<IChatProjectD
       required: true,
       index: true,
     },
+    /** Spike MVP (project-sharing): custom instructions injected as system
+     *  prompt into chats scoped to this project. */
+    instructions: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: 8000,
+    },
+    /** Spike MVP: file IDs attached as project context (unioned into the
+     *  turn's tool file set at send time). */
+    fileIds: {
+      type: [String],
+      default: [],
+    },
+    /** Spike MVP: membership grants. `viewer` reads/uses; `editor` also edits
+     *  instructions/files/members. Graduation path: AclEntry CHAT_PROJECT
+     *  principal (see SPEC §3); members array is the walking skeleton. */
+    members: {
+      type: [
+        {
+          userId: { type: String, required: true },
+          role: { type: String, enum: ['viewer', 'editor'], default: 'viewer' },
+          _id: false,
+        },
+      ],
+      default: [],
+    },
     conversationCount: {
       type: Number,
       default: 0,

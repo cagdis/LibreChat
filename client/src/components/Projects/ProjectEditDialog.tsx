@@ -30,6 +30,7 @@ export default function ProjectEditDialog({ open, onOpenChange, project }: Proje
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description ?? '');
+  const [instructions, setInstructions] = useState(project.instructions ?? '');
   const [wasOpen, setWasOpen] = useState(open);
   const updateProject = useUpdateProjectMutation();
   const { showToast } = useToastContext();
@@ -39,6 +40,7 @@ export default function ProjectEditDialog({ open, onOpenChange, project }: Proje
     if (open) {
       setName(project.name);
       setDescription(project.description ?? '');
+      setInstructions(project.instructions ?? '');
     }
   }
 
@@ -52,8 +54,11 @@ export default function ProjectEditDialog({ open, onOpenChange, project }: Proje
 
   const trimmedName = name.trim();
   const trimmedDescription = description.trim();
+  const trimmedInstructions = instructions.trim();
   const isUnchanged =
-    trimmedName === project.name && trimmedDescription === (project.description ?? '').trim();
+    trimmedName === project.name &&
+    trimmedDescription === (project.description ?? '').trim() &&
+    trimmedInstructions === (project.instructions ?? '').trim();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -66,6 +71,7 @@ export default function ProjectEditDialog({ open, onOpenChange, project }: Proje
         projectId: project._id,
         name: trimmedName,
         description: trimmedDescription,
+        instructions: trimmedInstructions,
       },
       {
         onSuccess: () => onOpenChange(false),
@@ -117,6 +123,23 @@ export default function ProjectEditDialog({ open, onOpenChange, project }: Proje
                 rows={3}
                 maxLength={MAX_CHAT_PROJECT_DESCRIPTION_LENGTH}
                 className="min-h-[4.5rem] bg-transparent"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor={`${formId}-instructions`}
+                className="text-sm font-medium text-text-primary"
+              >
+                Instructions <span className="font-normal text-text-secondary">(optional)</span>
+              </Label>
+              <Textarea
+                id={`${formId}-instructions`}
+                value={instructions}
+                onChange={(event) => setInstructions(event.target.value)}
+                rows={4}
+                maxLength={8000}
+                placeholder="How should the assistant behave in this project's chats?"
+                className="min-h-[6rem] bg-transparent"
               />
             </div>
           </form>

@@ -376,6 +376,10 @@ export type TChatProject = {
   _id: string;
   name: string;
   description?: string;
+  /** Spike MVP: system-prompt instructions for chats in this project. */
+  instructions?: string;
+  /** Spike MVP: project context file IDs. */
+  fileIds?: string[];
   user?: string;
   conversationCount: number;
   lastConversationAt?: string | null;
@@ -387,6 +391,10 @@ export type TChatProject = {
 export type TCreateChatProjectRequest = {
   name: string;
   description?: string;
+  /** Spike MVP. */
+  instructions?: string;
+  /** Spike MVP. */
+  fileIds?: string[];
 };
 
 export type TUpdateChatProjectRequest = Partial<TCreateChatProjectRequest> & {
