@@ -1534,6 +1534,7 @@
   "com_ui_mermaid_exporting_png": "PNG wird erstellt...",
   "com_ui_mermaid_failed": "Diagramm konnte nicht gerendert werden:",
   "com_ui_message_input": "Nachrichteneingabe",
+  "com_ui_message_placeholder": "Nachricht eingeben",
   "com_ui_message_nav": "Nachrichtennavigation",
   "com_ui_message_nav_go_to_assistant": "Zur KI-Nachricht springen: {{0}}",
   "com_ui_message_nav_go_to_user": "Zur Nutzernachricht springen: {{0}}",

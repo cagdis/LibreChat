@@ -101,4 +101,13 @@ describe('ConvoIcon', () => {
       '/assets/arvorepress-icon.png',
     );
   });
+
+  it('renders the deployment identity (never an empty frame) without conversation', () => {
+    renderIcon(null as unknown as TConversation);
+
+    expect(screen.getByRole('img', { name: 'ÁrvorePress IA' })).toHaveAttribute(
+      'src',
+      '/assets/arvorepress-icon.png',
+    );
+  });
 });

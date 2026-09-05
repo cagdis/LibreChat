@@ -167,5 +167,17 @@ export default function ConvoIcon({
     );
   };
 
+  // Sem conversa (ex. seletor vazio): identidade do deployment, igual ao EndpointIcon —
+  // nunca um contêiner vazio onde deveria haver marca.
+  if (conversation == null && !isAgent && !isAssistant) {
+    return (
+      <ConvoIconURL
+        iconURL={deploymentBrand.assistantIconURL}
+        modelLabel={deploymentBrand.assistantName}
+        context={context}
+      />
+    );
+  }
+
   return <div className={containerClassName}>{endpoint !== '' && renderArt()}</div>;
 }
