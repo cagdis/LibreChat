@@ -1,11 +1,14 @@
 # TODO overnight — opencode (executar nesta ordem)
 
-Contexto: branch `brand/arvorepress-ia` (fork cagdis/LibreChat), deploy prod no ar
-(`arvorepress.cagdis.com.br` + Traefik + Google OAuth). Worktree limpo e pushado.
+Contexto: branch `brand/arvorepress-ia` (fork cagdis/LibreChat), stack de HOMOLOGAÇÃO/PoC
+(`arvorepress.cagdis.com.br` + Traefik + Google OAuth) — **NÃO é produção**.
+Deploy liberado: `docker compose build/up/down`, restarts e rebuilds à vontade,
+pode usar os CLIs disponíveis (`docker`, `aws --profile cagdis-antiga|cagdis-producao`,
+`gcloud`, `gh`). Worktree limpo e pushado.
 Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commitar
 `.env`, `letsencrypt/`. Push SOMENTE com `git push origin brand/arvorepress-ia`
 (sem `--force`; rebase é ritual manual diurno). Se algo quebrar o boot, pare e registre.
-Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os passos literais; se o Intent for inalcançável, registre o bloqueio e siga para a próxima tarefa (nunca improvise credencial, escopo ou deploy parcial silencioso).
+Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os passos literais; se o Intent for inalcançável, registre o bloqueio e siga para a próxima tarefa (nunca improvise credencial, escopo ou deploy parcial silencioso). Se algo quebrar o boot, TENTE CONSERTAR (rebuild com `--pull`, `up -d --force-recreate`, ler logs) — só pare e registre se esgotar as alternativas, pois há janela livre até de manhã.
 
 ## T1. Conferir segredos de sessão (10 min)
 **Intent: de manhã, nenhum restart derruba sessões ativas; segredo de sessão é permanente e auditável.**
