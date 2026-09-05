@@ -83,13 +83,5 @@ Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os pass
   não verificado até completar verificação Google (só polimento futuro).
 - Critério: runrun.it clicável na UI de manhã; trio Google pronto p/ ligar após console.
 
-## T7. Smoke pós-tudo (15 min)
-**Intent: de manhã o Daniel abre os 4 URLs e todos respondem 200; qualquer regressão do overnight é detectada aqui, não pelo usuário.**
-- `https://arvorepress.cagdis.com.br/` 200 + `<title>ÁrvorePress IA</title>`,
-  `/login` 200, `/privacy/` 200, `https://admin.arvorepress.cagdis.com.br/` 200,
-  `docker ps` tudo Up, sem `Cannot find module` nos logs do api.
-- Critério: checklist OK registrado no commit final.
-
-## GATEADA (não executar sem aprovação explícita)
-- Runner self-hosted / deploy automático.
-- Publicar consent Google além do atual / novos domínios em allowedDomains.
+## T7. Seletor filtrado: só ÁrvorePress IA + agents (150 min)
+**Intent: seletor visível porém incapaz de vazar provider/modelo; default e agents funcionam.**
