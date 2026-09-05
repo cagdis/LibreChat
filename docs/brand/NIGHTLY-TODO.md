@@ -108,8 +108,10 @@ Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os pass
   `docker ps` tudo Up, sem `Cannot find module` nos logs do api.
 - Critério: checklist OK registrado no commit final.
 
-## T9. SPIKE isolado: compartilhamento de projetos (ChatGPT/Claude parity) (restante da noite)
-**Intent: de manhã o Daniel tem um veredito técnico (viável/inviável + caminho) e, se viável, um protótipo funcional numa branch descartável — a `brand` e a homologação amanhecem INTACTAS mesmo se o spike explodir.**
+## T9. SPIKE isolado: MVP compartilhamento de projetos (restante da noite)
+**Intent: de manhã existe, na branch descartável `spike/project-sharing`, um MVP
+ponta-a-ponta funcionando: projeto com instructions + arquivos, compartilhado com
+outro usuário, cujo chat usa o contexto do projeto — e a `brand`/homologação intactas.**
 - ISOLAMENTO (inviolável): `git checkout -b spike/project-sharing origin/brand/arvorepress-ia`;
   TODO o trabalho commita e pusha SÓ em `spike/project-sharing`; NUNCA merge/nada na `brand`;
   NUNCA `docker compose` com código do spike (sem deploy do spike!); se a branch prestar,
@@ -122,13 +124,15 @@ Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os pass
   conversationCount` — projeto pessoal é mero agrupador de chats, SEM instructions,
   SEM files, SEM sharing. Ou seja: antes de compartilhar, é preciso CRIAR instruções
   e arquivos no projeto. Reler ainda: #13496, #13051, `client/src/components/Projects/`.
-- Roteiro: (1) mapear ACL existente + pontos de injeção do composer com escopo
-  (como instructions/files ENTRARIAM numa conversa: system prompt? file_search?);
-  (2) desenhar em `docs/brand/spike-sharing/DECISION.md`: modelo de dados estendido
-  (instructions, file refs, members/view-edit) + fases (fase 1: instructions+files
-  owner-only; fase 2: sharing) + escopo mínimo vertical; (3) SÓ então prototipar o
-  menor slice (ex. instructions do projeto virando system prompt do dono, com teste);
-  (4) registrar estimativa total (dias + riscos de rebase).
+- Roteiro: (1) SPEC lida (`docs/brand/spike-sharing/SPEC.md` — auditoria, ACL, seams);
+  (2) MVP = menor vertical completo: schema `instructions`+`file refs` no ChatProject,
+  injeção no prompt (seam `context.ts` ou `initialize.ts`), share VIEW com 1 usuário
+  via `AclEntry` (`CHAT_PROJECT`), listagem por `findAccessibleResources`, enforcement
+  nas rotas; (3) UI mínima (editar instructions + botão compartilhar + aceitar);
+  EDIT pode ficar para depois SE o tempo estourar — registrar como gap;
+  (4) testes de isolamento (B não vê nada de A) + `DECISION.md` com o que faltou p/ paridade total.
+- Critério: demo roteirizada em `docs/brand/spike-sharing/DEMO.md` (passo a passo
+  reproduzível na branch do spike, SEM deploy em homologação); zero diff na `brand`.
 - Critério: `DECISION.md` com veredito + (protótipo OU motivo documentado de inviabilidade
   numa noite); zero diff na `brand`; zero restart de prod causado pelo spike.
 
