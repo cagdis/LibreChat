@@ -84,4 +84,30 @@ Regra de ambiguidade global: o **Intent** de cada tarefa prevalece sobre os pass
 - Critério: runrun.it clicável na UI de manhã; trio Google pronto p/ ligar após console.
 
 ## T7. Seletor filtrado: só ÁrvorePress IA + agents (150 min)
-**Intent: seletor visível porém incapaz de vazar provider/modelo; default e agents funcionam.**
+**Intent: de manhã o seletor está VISÍVEL mas mostra SÓ 'ÁrvorePress IA' (padrão, pré-selecionado em toda conversa nova) + os agents do usuário; chat padrão e chat com agent (ex. Mater Dei) funcionam; nenhum outro modelo/endpoint é alcançável. Em ambiguidade, prefira ESCONDER opção a EXIBIR.**
+- Base: `enforce:false` + `modelSelect:true` em `librechat.yaml` (commitado; era o inverso).
+  Motivo: com `enforce:true` o backend exige `spec` em toda request
+  (`buildEndpointOption.js:96-100`) e chat com agent salvo morre com
+  "No model spec selected" — Agents e enforce são mutuamente exclusivos no upstream.
+- Auditar fontes de opções do seletor: `ModelSelector.tsx` (reescrever o early-return-null
+  do brand-05b), menu de endpoints (`endpointsMenu`), `getDefaultModelSpec`/`getModelSpecPreset`
+  em `ChatRoute.tsx` (default continua sendo o spec `deepseek-default`).
+- Filtro: exibir apenas (a) spec default `deepseek-default` ("ÁrvorePress IA") e
+  (b) agents de `agentsMap`. Esconder: endpoint DeepSeek direto, outros modelos,
+  spec `deepseek-chat-fallback` (já `showInMenu:false`), presets/parâmetros que vazem provider.
+- Reescrever doc `brand-05b-deployment-labels.md` (regra "ModelSelector retorna null" morre)
+  + entrada em `patches.json`; atualizar specs dos componentes tocados.
+- Critério: `tsc` limpo; jest tocados verde; smoke: (1) conversa nova vem em ÁrvorePress IA
+  sem tocar em nada; (2) chat com Mater Dei responde; (3) grep na UI não lista
+  deepseek-v4-pro cru, endpoint DeepSeek nem outros modelos.
+
+## T8. Smoke pós-tudo (15 min)
+**Intent: de manhã o Daniel abre os URLs e todos respondem 200; chat padrão + chat com agent respondem; qualquer regressão do overnight é detectada aqui, não pelo usuário.**
+- `https://arvorepress.cagdis.com.br/` 200 + `<title>ÁrvorePress IA</title>`,
+  `/login` 200, `/privacy/` 200, `https://admin.arvorepress.cagdis.com.br/` 200,
+  `docker ps` tudo Up, sem `Cannot find module` nos logs do api.
+- Critério: checklist OK registrado no commit final.
+
+## GATEADA (não executar sem aprovação explícita)
+- Runner self-hosted / deploy automático.
+- Publicar consent Google além do atual / novos domínios em allowedDomains.
