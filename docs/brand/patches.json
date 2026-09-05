@@ -124,7 +124,7 @@
   },
   {
     "id": "brand-09-always-on",
-    "commit": "TBD",
+    "commit": "99b6429a1",
     "base_sha": "c302ae6f35b4",
     "upstream_area": [
       "client/src/components/Chat/Input",
