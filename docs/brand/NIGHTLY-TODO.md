@@ -3,8 +3,9 @@
 Contexto: branch `brand/arvorepress-ia` (fork cagdis/LibreChat), stack de HOMOLOGAÇÃO/PoC
 (`arvorepress.cagdis.com.br` + Traefik + Google OAuth) — **NÃO é produção**.
 Deploy liberado: `docker compose build/up/down`, restarts e rebuilds à vontade,
-pode usar os CLIs disponíveis (`docker`, `aws --profile cagdis-antiga|cagdis-producao`,
-`gcloud`, `gh`). Worktree limpo e pushado.
+pode usar os CLIs disponíveis (`docker`, `gcloud`, `gh`, `aws --profile cagdis-antiga`).
+  ATENÇÃO: `cagdis-producao` teve logout proposital (conta sensível, era só p/ DNS) —
+  NÃO faça login nela por conta própria em nenhuma hipótese.
 Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commitar
 `.env`, `letsencrypt/`. Push SOMENTE com `git push origin brand/arvorepress-ia`
 (sem `--force`; rebase é ritual manual diurno). Se algo quebrar o boot, pare e registre.
