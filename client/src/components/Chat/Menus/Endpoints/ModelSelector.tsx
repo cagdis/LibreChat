@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { TooltipAnchor } from '@librechat/client';
-import { getConfigDefaults } from 'librechat-data-provider';
+import { EModelEndpoint, getConfigDefaults } from 'librechat-data-provider';
 import type { ModelSelectorProps } from '~/common';
 import {
   renderModelSpecs,
@@ -65,6 +65,18 @@ function ModelSelectorContent() {
     [localize, agentsMap, modelSpecs, selectedValues, mappedEndpoints],
   );
 
+  // Brand deployment (brand-09/T7): the selector offers only the default spec
+  // ("ÁrvorePress IA", pre-selected on every new chat) plus the user's agents.
+  // Direct endpoints, fallback specs and grouped specs stay hidden.
+  const visibleSpecs = useMemo(
+    () => modelSpecs?.filter((spec) => !spec.group && spec.default === true) ?? [],
+    [modelSpecs],
+  );
+  const visibleEndpoints = useMemo(
+    () => mappedEndpoints?.filter((endpoint) => endpoint.value === EModelEndpoint.agents) ?? [],
+    [mappedEndpoints],
+  );
+
   const trigger = (
     <TooltipAnchor
       aria-label={localize('com_ui_select_model')}
@@ -108,14 +120,11 @@ function ModelSelectorContent() {
         ) : (
           <>
             {/* Render ungrouped modelSpecs (no group field) */}
-            {renderModelSpecs(
-              modelSpecs?.filter((spec) => !spec.group) || [],
-              selectedValues.modelSpec || '',
-            )}
+            {renderModelSpecs(visibleSpecs, selectedValues.modelSpec || '')}
             {/* Render endpoints (will include grouped specs matching endpoint names) */}
-            {renderEndpoints(mappedEndpoints ?? [])}
+            {renderEndpoints(visibleEndpoints)}
             {/* Render custom groups (specs with group field not matching any endpoint) */}
-            {renderCustomGroups(modelSpecs || [], mappedEndpoints ?? [])}
+            {renderCustomGroups(visibleSpecs, visibleEndpoints)}
           </>
         )}
       </Menu>
@@ -131,10 +140,9 @@ function ModelSelectorContent() {
 
 export default function ModelSelector({ startupConfig }: ModelSelectorProps) {
   const interfaceConfig = startupConfig?.interface ?? defaultInterface;
-  const modelSpecs = startupConfig?.modelSpecs?.list ?? [];
 
-  // Hide the selector when modelSelect is false and there are no model specs to show
-  if (interfaceConfig.modelSelect === false && modelSpecs.length === 0) {
+  // A deployment that fixes the active model has nothing useful to select.
+  if (interfaceConfig.modelSelect === false) {
     return null;
   }
 

@@ -6,10 +6,11 @@ import { logger } from '@librechat/data-schemas';
 import type { CodeArtifactCategory } from './classify';
 import { bufferToOfficeHtml, officeHtmlBucket } from '~/files/documents/html';
 import { createConcurrencyLimiter, withTimeout } from '~/utils/promise';
+import { MAX_FILE_PREVIEW_BYTES } from '~/files/preview';
 import { parseDocument } from '~/files/documents/crud';
 import { isBinaryBuffer } from '~/skills/binary';
 
-export const MAX_TEXT_CACHE_BYTES: number = 512 * 1024;
+export const MAX_TEXT_CACHE_BYTES: number = MAX_FILE_PREVIEW_BYTES;
 
 /** Default inline-preview extraction ceiling: 2 MB. Office/text artifacts
  * larger than this skip inline preview and fall back to download-only. */
@@ -20,8 +21,9 @@ const DEFAULT_MAX_TEXT_EXTRACT_BYTES = 2 * 1024 * 1024;
  * `FILE_PREVIEW_MAX_EXTRACT_BYTES`, falling back to the 2 MB default when
  * the value is missing, non-numeric, or non-positive. Raising it lets
  * larger documents render an inline preview; the rendered HTML is still
- * independently capped at {@link MAX_TEXT_CACHE_BYTES} (512 KB), so
- * image-heavy files over that show the "too large" banner instead.
+ * independently capped at {@link MAX_TEXT_CACHE_BYTES} (512 KB by default),
+ * so image-heavy files over the configured value show the "too large" banner
+ * instead.
  */
 export function resolveMaxTextExtractBytes(value: string | undefined): number {
   if (value == null || value.trim() === '') {

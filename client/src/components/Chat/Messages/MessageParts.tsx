@@ -14,6 +14,7 @@ import { getHeaderModelName } from '~/components/Chat/Messages/ui/HeaderLabel';
 import { revealOnRowHoverClasses, messageFooterClasses } from './styles';
 import MessageRow from '~/components/Chat/Messages/ui/MessageRow';
 import MessageIcon from '~/components/Chat/Messages/MessageIcon';
+import { deploymentBrand } from '~/branding/deployment';
 import Elapsed, { shouldShowElapsed } from './Elapsed';
 import ContentParts from './Content/ContentParts';
 import SiblingSwitch from './SiblingSwitch';
@@ -56,6 +57,8 @@ function MessageParts(props: TMessageProps) {
       result = assistant.name ?? localize('com_ui_assistant');
     } else if (agent) {
       result = agent.name ?? localize('com_ui_agent');
+    } else {
+      result = deploymentBrand.assistantName;
     }
 
     return result;
@@ -109,12 +112,16 @@ function MessageParts(props: TMessageProps) {
           id={messageId ?? ''}
           icon={<MessageIcon iconData={iconData} assistant={assistant} agent={agent} />}
           label={name}
-          hoverLabel={getHeaderModelName(
-            agent?.model,
-            assistant?.model,
-            message.model,
-            conversation?.model,
-          )}
+          hoverLabel={
+            agent || assistant
+              ? getHeaderModelName(
+                  agent?.model,
+                  assistant?.model,
+                  message.model,
+                  conversation?.model,
+                )
+              : deploymentBrand.assistantName
+          }
           timestamp={message.createdAt ?? message.clientTimestamp}
           ariaLabel={getMessageAriaLabel(message, localize)}
           headerPrefix={getHeaderPrefixForScreenReader(message, localize)}

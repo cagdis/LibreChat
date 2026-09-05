@@ -1,4 +1,4 @@
-import { Constants } from 'librechat-data-provider';
+import { Constants, ArtifactModes } from 'librechat-data-provider';
 import { atomFamily, useRecoilCallback } from 'recoil';
 import type { TEphemeralAgent } from 'librechat-data-provider';
 import { logger } from '~/utils';
@@ -96,7 +96,32 @@ export function useGetEphemeralAgent() {
       (conversationId: string): TEphemeralAgent | null => {
         logger.log('agents', `[useGetEphemeralAgent] Getting loadable for ID: ${conversationId}`);
         const agentLoadable = snapshot.getLoadable(ephemeralAgentByConvoId(conversationId));
-        return agentLoadable.contents as TEphemeralAgent | null;
+        const stored = agentLoadable.contents as TEphemeralAgent | null;
+        // Brand deployment: built-in tools are always on; the composer no longer
+        // exposes toggles. Force them here (single choke point for send + approval
+        // flows) so stale localStorage/atoms can never disable them. `mcp` stays
+        // user-driven (per-server OAuth connections can't be forced).
+        if (stored == null) {
+          return {
+            web_search: true,
+            file_search: true,
+            execute_code: true,
+            artifacts: ArtifactModes.DEFAULT,
+            skills: true,
+            memory: true,
+            ask_user_question: true,
+          };
+        }
+        return {
+          ...stored,
+          web_search: true,
+          file_search: true,
+          execute_code: true,
+          artifacts: ArtifactModes.DEFAULT,
+          skills: true,
+          memory: true,
+          ask_user_question: true,
+        };
       },
     [],
   );

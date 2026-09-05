@@ -906,6 +906,7 @@
   "com_ui_mention": "Mencione un endpoint, asistente o configuración preestablecida para cambiar rápidamente",
   "com_ui_mermaid_failed": "Error al renderizar el diagrama:",
   "com_ui_message_input": "Campo de mensaje",
+  "com_ui_message_placeholder": "Escribe tu mensaje",
   "com_ui_min_tags": "No se pueden eliminar más valores, se requiere un mínimo de {{0}}.",
   "com_ui_model": "Modelo",
   "com_ui_model_parameters": "Parámetros del modelo",

@@ -37,8 +37,6 @@ const assistantMap = {
   [EModelEndpoint.assistants]: { [assistant.id]: assistant },
 } as TAssistantsMap;
 
-const cohereConversation = { endpoint: ProviderId.cohere } as unknown as TConversation;
-
 const renderIcon = (conversation: TConversation) =>
   render(
     <ConvoIcon
@@ -53,10 +51,13 @@ const renderIcon = (conversation: TConversation) =>
   );
 
 describe('ConvoIcon', () => {
-  it('renders the provider mark for a first-class endpoint', () => {
+  it('renders the deployment identity for a first-class endpoint', () => {
     renderIcon({ endpoint: EModelEndpoint.anthropic } as TConversation);
 
-    expect(screen.getByRole('img', { name: 'Anthropic' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'ÁrvorePress IA' })).toHaveAttribute(
+      'src',
+      '/assets/arvorepress-icon.png',
+    );
   });
 
   it('keeps the agent avatar rather than provider art', () => {
@@ -92,20 +93,21 @@ describe('ConvoIcon', () => {
     );
   });
 
-  it('keeps Cohere landing padding off other contexts and on landing', () => {
-    const { container: landing } = renderIcon(cohereConversation);
-    expect(landing.querySelector('img')).toHaveClass('p-2');
+  it('uses the same deployment identity for a different model provider', () => {
+    renderIcon({ endpoint: ProviderId.cohere } as unknown as TConversation);
 
-    const { container: nav } = render(
-      <ConvoIcon
-        conversation={cohereConversation}
-        endpointsConfig={endpointsConfig}
-        assistantMap={assistantMap}
-        agentsMap={agentsMap}
-        context="nav"
-        size={20}
-      />,
+    expect(screen.getByRole('img', { name: 'ÁrvorePress IA' })).toHaveAttribute(
+      'src',
+      '/assets/arvorepress-icon.png',
     );
-    expect(nav.querySelector('img')).not.toHaveClass('p-2');
+  });
+
+  it('renders the deployment identity (never an empty frame) without conversation', () => {
+    renderIcon(null as unknown as TConversation);
+
+    expect(screen.getByRole('img', { name: 'ÁrvorePress IA' })).toHaveAttribute(
+      'src',
+      '/assets/arvorepress-icon.png',
+    );
   });
 });

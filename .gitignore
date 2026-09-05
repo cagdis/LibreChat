@@ -189,3 +189,6 @@ CLAUDE.md
 .gsd
 codedb.snapshot
 scripts/activity-labels/results/
+
+# ACME certificates (private keys) for the Traefik prod deploy (brand-08).
+letsencrypt/

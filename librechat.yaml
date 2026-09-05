@@ -1,0 +1,144 @@
+registration:
+  allowedDomains:
+    - "cagdis.com"
+    - "arvoredecomunicacao.com.br"
+
+version: 1.3.14
+
+cache: true
+
+interface:
+  customWelcome: 'Que pauta vamos transformar em notícia hoje?'
+  modelSelect: true
+  marketplace:
+    use: false
+  webSearch: true
+  skills:
+    use: true
+    create: true
+    defaultActiveOnShare: true
+  defaultPinnedTools:
+    - web_search
+    - execute_code
+
+webSearch:
+  searchProvider: keenable
+  scraperProvider: keenable
+  rerankerType: none
+  safeSearch: 1
+  keenableSearchOptions:
+    maxResults: 5
+  keenableScraperOptions:
+    timeout: 15000
+
+endpoints:
+  agents:
+    capabilities:
+      - deferred_tools
+      - execute_code
+      - file_search
+      - web_search
+      - artifacts
+      - subagents
+      - actions
+      - context
+      - skills
+      - memory
+      - ask_user_question
+      - tools
+      - chain
+      - ocr
+  custom:
+    - name: DeepSeek
+      apiKey: '${DEEPSEEK_API_KEY}'
+      baseURL: 'https://api.deepseek.com'
+      models:
+        default:
+          - deepseek-v4-pro
+        fetch: false
+      titleConvo: true
+      titleModel: deepseek-v4-pro
+      modelDisplayLabel: ÁrvorePress IA
+
+modelSpecs:
+  enforce: false
+  prioritize: true
+  list:
+    - name: deepseek-default
+      label: ÁrvorePress IA
+      default: true
+      webSearch: true
+      executeCode: true
+      preset:
+        endpoint: DeepSeek
+        model: deepseek-v4-pro
+        useResponsesApi: true
+    - name: deepseek-chat-fallback
+      label: ÁrvorePress IA
+      default: false
+      showInMenu: false
+      webSearch: true
+      executeCode: true
+      preset:
+        endpoint: DeepSeek
+        model: deepseek-v4-pro
+
+# Google Workspace MCP (oficial Google, OAuth por usuário) — pendente console:
+# 1) registrar redirect URIs no OAuth client; 2) preencher .env; 3) descomentar.
+# mcpServers:
+#   gmail:
+#     type: streamable-http
+#     url: 'https://gmailmcp.googleapis.com/mcp/v1'
+#     timeout: 60000
+#     initTimeout: 150000
+#     requiresOAuth: true
+#     startup: false
+#     oauth:
+#       authorization_url: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent'
+#       token_url: 'https://oauth2.googleapis.com/token'
+#       client_id: '${GOOGLE_WORKSPACE_MCP_CLIENT_ID}'
+#       client_secret: '${GOOGLE_WORKSPACE_MCP_CLIENT_SECRET}'
+#       scope: 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.compose'
+#       redirect_uri: 'https://arvorepress.cagdis.com.br/api/mcp/gmail/oauth/callback'
+#       token_exchange_method: default_post
+#       token_endpoint_auth_methods_supported: ['client_secret_post']
+#   drive:
+#     type: streamable-http
+#     url: 'https://drivemcp.googleapis.com/mcp/v1'
+#     timeout: 60000
+#     initTimeout: 150000
+#     requiresOAuth: true
+#     startup: false
+#     oauth:
+#       authorization_url: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent'
+#       token_url: 'https://oauth2.googleapis.com/token'
+#       client_id: '${GOOGLE_WORKSPACE_MCP_CLIENT_ID}'
+#       client_secret: '${GOOGLE_WORKSPACE_MCP_CLIENT_SECRET}'
+#       scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file'
+#       redirect_uri: 'https://arvorepress.cagdis.com.br/api/mcp/drive/oauth/callback'
+#       token_exchange_method: default_post
+#       token_endpoint_auth_methods_supported: ['client_secret_post']
+#   calendar:
+#     type: streamable-http
+#     url: 'https://calendarmcp.googleapis.com/mcp/v1'
+#     timeout: 60000
+#     initTimeout: 150000
+#     requiresOAuth: true
+#     startup: false
+#     oauth:
+#       authorization_url: 'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent'
+#       token_url: 'https://oauth2.googleapis.com/token'
+#       client_id: '${GOOGLE_WORKSPACE_MCP_CLIENT_ID}'
+#       client_secret: '${GOOGLE_WORKSPACE_MCP_CLIENT_SECRET}'
+#       scope: 'https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/calendar.events.freebusy https://www.googleapis.com/auth/calendar.events.readonly'
+#       redirect_uri: 'https://arvorepress.cagdis.com.br/api/mcp/calendar/oauth/callback'
+#       token_exchange_method: default_post
+#       token_endpoint_auth_methods_supported: ['client_secret_post']
+
+mcpServers:
+  runrun:
+    type: streamable-http
+    url: 'https://arvore-mcp-runrun.cagdis.com/mcp'
+    timeout: 60000
+    initTimeout: 120000
+    startup: false

@@ -20,6 +20,7 @@ import SiblingSwitch from '~/components/Chat/Messages/SiblingSwitch';
 import HoverButtons from '~/components/Chat/Messages/HoverButtons';
 import MessageRow from '~/components/Chat/Messages/ui/MessageRow';
 import MessageIcon from '~/components/Chat/Messages/MessageIcon';
+import { deploymentBrand } from '~/branding/deployment';
 import SubRow from '~/components/Chat/Messages/SubRow';
 import store from '~/store';
 
@@ -155,12 +156,11 @@ const ContentRender = memo(function ContentRender({
       id={msg.messageId}
       icon={<MessageIcon iconData={iconData} assistant={assistant} agent={agent} />}
       label={messageLabel ?? ''}
-      hoverLabel={getHeaderModelName(
-        agent?.model,
-        assistant?.model,
-        msg.model,
-        conversation?.model,
-      )}
+      hoverLabel={
+        agent || assistant
+          ? getHeaderModelName(agent?.model, assistant?.model, msg.model, conversation?.model)
+          : deploymentBrand.assistantName
+      }
       timestamp={msg.createdAt ?? msg.clientTimestamp}
       ariaLabel={getMessageAriaLabel(msg, localize)}
       headerPrefix={getHeaderPrefixForScreenReader(msg, localize)}

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "brand-01-fork-docs",
+    "commit": "f50f25dc5",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [],
+    "compat_check": [
+      "n/a - docs only"
+    ],
+    "doc": "docs/brand/patches/brand-01-fork-docs.md"
+  },
+  {
+    "id": "brand-02-tools-loader",
+    "commit": "3e59e765d",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "api/server/services/start/tools.js"
+    ],
+    "compat_check": [
+      "rebase",
+      "boot da API com spec dummy no dir de tools"
+    ],
+    "doc": "docs/brand/patches/brand-02-tools-loader.md"
+  },
+  {
+    "id": "brand-03-visual-identity",
+    "commit": "57a73b51a",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "client/vite.config.ts",
+      "client/src/components/Auth/AuthLayout.tsx",
+      "client/index.html"
+    ],
+    "compat_check": [
+      "tsc client",
+      "build frontend"
+    ],
+    "doc": "docs/brand/patches/brand-03-visual-identity.md"
+  },
+  {
+    "id": "brand-04-theme",
+    "commit": "83ce6b8cd",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "client/src/App.jsx",
+      "@librechat/client ThemeDefinition"
+    ],
+    "compat_check": [
+      "tsc client",
+      "jest arvorepress --runInBand --coverage=false"
+    ],
+    "doc": "docs/brand/patches/brand-04-theme.md"
+  },
+  {
+    "id": "brand-05a-deployment-icons",
+    "commit": "1371ee5e8",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "client/src/components/Endpoints",
+      "client/src/components/Chat/Messages/MessageIcon.tsx",
+      "client/src/components/Share/MessageIcon.tsx"
+    ],
+    "compat_check": [
+      "jest ConvoIcon EndpointIcon MessageIcon"
+    ],
+    "doc": "docs/brand/patches/brand-05a-deployment-icons.md"
+  },
+  {
+    "id": "brand-05b-deployment-labels",
+    "commit": "b8685723b",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "client/src/components/Chat/Messages",
+      "client/src/components/Share/Message.tsx",
+      "client/src/hooks/Input/useTextarea.ts",
+      "client/src/components/Chat/Menus/Endpoints/ModelSelector.tsx"
+    ],
+    "compat_check": [
+      "tsc client",
+      "jest useTextarea"
+    ],
+    "doc": "docs/brand/patches/brand-05b-deployment-labels.md"
+  },
+  {
+    "id": "brand-06-file-preview",
+    "commit": "7f1538a9f",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "packages/api/src/files"
+    ],
+    "compat_check": [
+      "tsc packages/api",
+      "jest preview"
+    ],
+    "doc": "docs/brand/patches/brand-06-file-preview.md"
+  },
+  {
+    "id": "brand-07-dockerfile",
+    "commit": "f99125cda",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "Dockerfile.brand",
+      "api/server/services/start/tools.js (COPY)"
+    ],
+    "compat_check": [
+      "rebuild local",
+      "smoke test login/chat/DOCX"
+    ],
+    "doc": "docs/brand/patches/brand-07-dockerfile.md"
+  },
+  {
+    "id": "brand-08-prod-deploy",
+    "commit": "ddd5c0ac2",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "Dockerfile.brand (COPY/runtime)",
+      "api/server/routes/admin/auth.js"
+    ],
+    "compat_check": [
+      "rebuild com --pull",
+      "smoke https /, /login, /privacy/, Google permit/negado"
+    ],
+    "doc": "docs/brand/patches/brand-08-prod-deploy.md"
+  },
+  {
+    "id": "brand-09-always-on",
+    "commit": "99b6429a1",
+    "base_sha": "c302ae6f35b4",
+    "upstream_area": [
+      "client/src/components/Chat/Input",
+      "client/src/store/agents.ts",
+      "packages/api/src/agents/load.ts",
+      "api/server/controllers/agents"
+    ],
+    "compat_check": [
+      "tsc client + packages/api",
+      "jest ConvoIcon/EndpointIcon/load",
+      "smoke: composer sem botoes, default + agent chat"
+    ],
+    "doc": "docs/brand/patches/brand-09-always-on.md"
+  }
+]

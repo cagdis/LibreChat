@@ -10,8 +10,22 @@ const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 20;
 const MAX_CURSOR_LENGTH = 512;
 
-export type AgentManagementCreate = z.output<typeof agentCreateSchema>;
-export type AgentManagementUpdate = z.output<typeof agentUpdateSchema>;
+export type AgentManagementCreate = Omit<z.output<typeof agentCreateSchema>, 'model'> & {
+  model: string;
+};
+type AgentManagementCreateInput = Omit<z.input<typeof agentCreateSchema>, 'model'> & {
+  model: string;
+};
+export type AgentManagementUpdate = Omit<
+  z.output<typeof agentUpdateSchema>,
+  'name' | 'description' | 'instructions' | 'model' | 'avatar'
+> & {
+  name?: string;
+  description?: string;
+  instructions?: string;
+  model?: string;
+  avatar?: null;
+};
 export type AgentManagementList = {
   limit: number;
   cursor?: string;
@@ -28,11 +42,15 @@ export type AgentManagementResponse = Omit<
   updatedAt: string;
 };
 export type AgentManagementProjectionSource = Partial<
-  Omit<AgentManagementResponse, 'id' | 'provider' | 'model' | 'version' | 'createdAt' | 'updatedAt'>
+  Omit<
+    AgentManagementResponse,
+    'id' | 'provider' | 'model' | 'version' | 'createdAt' | 'updatedAt' | 'avatar'
+  >
 > & {
   id?: string;
   provider?: string;
   model?: string | null;
+  avatar?: AgentManagementResponse['avatar'] | string;
   version?: number;
   versions?: readonly object[];
   createdAt?: string | Date;
@@ -50,6 +68,10 @@ export type AgentManagementListResponse = {
   last_id: string | null;
   has_more: boolean;
   after: string | null;
+};
+export type AgentManagementDeleteResponse = {
+  id: string;
+  deleted: true;
 };
 export type AgentManagementErrorCode =
   | 'invalid_request'
@@ -71,10 +93,17 @@ export type AgentManagementError = {
 export const agentManagementCreateSchema: z.ZodType<
   AgentManagementCreate,
   z.ZodTypeDef,
-  z.input<typeof agentCreateSchema>
-> = agentCreateSchema.strict();
-export const agentManagementUpdateSchema: z.ZodType<AgentManagementUpdate> =
-  agentUpdateSchema.strict();
+  AgentManagementCreateInput
+> = agentCreateSchema.extend({ model: z.string() }).strict();
+export const agentManagementUpdateSchema: z.ZodType<AgentManagementUpdate> = agentUpdateSchema
+  .extend({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    instructions: z.string().optional(),
+    model: z.string().optional(),
+    avatar: z.null().optional(),
+  })
+  .strict();
 
 const agentManagementCursorSchema = z
   .string()
@@ -171,6 +200,14 @@ export const agentManagementListResponseSchema: z.ZodType<AgentManagementListRes
     }
   });
 
+/** Minimal tombstone returned after an Agent is successfully deleted. */
+export const agentManagementDeleteResponseSchema: z.ZodType<AgentManagementDeleteResponse> = z
+  .object({
+    id: z.string().min(1),
+    deleted: z.literal(true),
+  })
+  .strict();
+
 export const agentManagementErrorCodeSchema: z.ZodType<AgentManagementErrorCode> = z.enum([
   'invalid_request',
   'not_found',
@@ -225,7 +262,7 @@ export function projectAgentManagementResponse(
     name: source.name,
     description: source.description,
     instructions: source.instructions,
-    avatar: source.avatar,
+    avatar: typeof source.avatar === 'string' ? undefined : source.avatar,
     model_parameters: source.model_parameters,
     tools: source.tools,
     skills: source.skills,

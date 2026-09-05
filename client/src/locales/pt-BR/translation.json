@@ -1469,6 +1469,7 @@
   "com_ui_mermaid": "Mermaid",
   "com_ui_mermaid_failed": "Falha ao renderizar o diagrama:",
   "com_ui_message_input": "Entrada de mensagem",
+  "com_ui_message_placeholder": "Digite sua mensagem",
   "com_ui_message_nav": "Navegação de mensagens",
   "com_ui_message_nav_go_to_assistant": "Ir para mensagem do assistente: {{0}}",
   "com_ui_message_nav_go_to_user": "Ir para mensagem do usuário: {{0}}",

@@ -2,11 +2,11 @@ import type { TMessageProps } from '~/common';
 import AuthorHeader from '~/components/Chat/Messages/Content/Parts/AuthorHeader';
 import MinimalHoverButtons from '~/components/Chat/Messages/MinimalHoverButtons';
 import MessageContent from '~/components/Chat/Messages/Content/MessageContent';
-import { getHeaderModelName } from '~/components/Chat/Messages/ui/HeaderLabel';
 import { getHeaderPrefixForScreenReader, getMessageAriaLabel } from '~/utils';
 import SearchContent from '~/components/Chat/Messages/Content/SearchContent';
 import SiblingSwitch from '~/components/Chat/Messages/SiblingSwitch';
 import MessageRow from '~/components/Chat/Messages/ui/MessageRow';
+import { deploymentBrand } from '~/branding/deployment';
 import SubRow from '~/components/Chat/Messages/SubRow';
 import { useAttachments, useLocalize } from '~/hooks';
 import { MessageContext } from '~/Providers';
@@ -47,7 +47,7 @@ export default function Message(props: TMessageProps) {
    *  keeps a neutral label. `com_user_message` reads "You", which is right in the chat
    *  view and wrong here: it is the screen-reader heading for the user turn, and it
    *  would credit every prompt the sharer wrote to the person reading the transcript. */
-  const messageLabel = isCreatedByUser ? localize('com_ui_user') : (message.sender ?? '');
+  const messageLabel = isCreatedByUser ? localize('com_ui_user') : deploymentBrand.assistantName;
 
   return (
     <>
@@ -57,7 +57,7 @@ export default function Message(props: TMessageProps) {
             id={messageId}
             icon={<Icon message={message} conversation={conversation} />}
             label={messageLabel}
-            hoverLabel={getHeaderModelName(message.model)}
+            hoverLabel={isCreatedByUser ? undefined : deploymentBrand.assistantName}
             timestamp={message.createdAt ?? message.clientTimestamp}
             ariaLabel={getMessageAriaLabel(message, localize)}
             headerPrefix={getHeaderPrefixForScreenReader(message, localize)}

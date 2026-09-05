@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { MAX_SUBAGENTS, setMaxSubagents } from 'librechat-data-provider';
 import {
   agentManagementCreateSchema,
+  agentManagementDeleteResponseSchema,
   agentManagementListResponseSchema,
   agentManagementListSchema,
   agentManagementResponseSchema,
@@ -77,6 +78,28 @@ describe('Agent Management contract', () => {
         expect(schema.safeParse({ ...base, versions: [] }).success).toBe(false);
       },
     );
+
+    it('rejects a null model before Agent creation reaches persistence', () => {
+      expect(
+        agentManagementCreateSchema.safeParse({ provider: 'openAI', model: null }).success,
+      ).toBe(false);
+    });
+
+    it.each([
+      { name: null },
+      { description: null },
+      { instructions: null },
+      { model: null },
+      { avatar: { filepath: 'avatars/replacement.png', source: 'local' } },
+    ])('rejects update values the browser update flow cannot apply: %p', (update) => {
+      expect(agentManagementUpdateSchema.safeParse(update).success).toBe(false);
+    });
+
+    it('accepts the explicitly supported update clears', () => {
+      expect(
+        agentManagementUpdateSchema.parse({ avatar: null, code_environment_id: null }),
+      ).toEqual({ avatar: null, code_environment_id: null });
+    });
   });
 
   describe('pagination', () => {
@@ -145,6 +168,19 @@ describe('Agent Management contract', () => {
   });
 
   describe('responses', () => {
+    it('validates the minimal deletion tombstone', () => {
+      expect(
+        agentManagementDeleteResponseSchema.parse({ id: 'agent_public_id', deleted: true }),
+      ).toEqual({ id: 'agent_public_id', deleted: true });
+      expect(
+        agentManagementDeleteResponseSchema.safeParse({
+          id: 'agent_public_id',
+          deleted: true,
+          tenantId: 'tenant-secret',
+        }).success,
+      ).toBe(false);
+    });
+
     it('allowlists supported configuration and stable metadata', () => {
       const response = projectAgentManagementResponse(persistedAgent);
 
@@ -165,6 +201,16 @@ describe('Agent Management contract', () => {
       expect(response).not.toHaveProperty('versions');
       expect(response).not.toHaveProperty('mcpServerNames');
       expect(response).not.toHaveProperty('is_promoted');
+    });
+
+    it('omits legacy string avatars that are not part of the management contract', () => {
+      const response = projectAgentManagementResponse({
+        ...persistedAgent,
+        avatar: 'https://example.com/legacy-avatar.png',
+      });
+
+      expect(JSON.parse(JSON.stringify(response))).not.toHaveProperty('avatar');
+      expect(agentManagementResponseSchema.parse(response)).toEqual(response);
     });
 
     it('does not apply the current request admission limit to persisted subagents', () => {

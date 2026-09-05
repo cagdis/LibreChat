@@ -74,7 +74,19 @@ export async function loadEphemeralAgent(
   if (spec != null && spec !== '') {
     modelSpec = modelSpecs?.list?.find((s) => s.name === spec) ?? null;
   }
-  const ephemeralAgent: TEphemeralAgent | undefined = req.body?.ephemeralAgent;
+  const ephemeralAgent: TEphemeralAgent = {
+    ...req.body?.ephemeralAgent,
+    /** Brand deployment always-on (brand-09): the composer no longer exposes
+     *  built-in toggles, so client flags are ignored here — the single
+     *  server-side choke point. `mcp` stays user-driven (per-server OAuth). */
+    execute_code: true,
+    file_search: true,
+    web_search: true,
+    memory: true,
+    ask_user_question: true,
+    skills: true,
+    artifacts: req.body?.ephemeralAgent?.artifacts || 'default',
+  };
   const userId = req.user?.id ?? '';
   /** The picker's own selection is narrowed to what the picker may offer; a
    *  spec's servers are the operator's choice and are added after, so pinning a

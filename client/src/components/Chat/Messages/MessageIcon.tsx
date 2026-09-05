@@ -3,6 +3,7 @@ import { getEndpointField } from 'librechat-data-provider';
 import type { Assistant, Agent } from 'librechat-data-provider';
 import type { TMessageIcon } from '~/common';
 import ConvoIconURL from '~/components/Endpoints/ConvoIconURL';
+import { deploymentBrand } from '~/branding/deployment';
 import { useGetEndpointsQuery } from '~/data-provider';
 import Icon from '~/components/Endpoints/Icon';
 import { isImageURL } from '~/utils/icons';
@@ -64,6 +65,16 @@ const MessageIcon = memo(({ iconData, assistant, agent }: MessageIconProps) => {
     () => getEndpointField(endpointsConfig, endpoint, 'iconURL'),
     [endpointsConfig, endpoint],
   );
+
+  if (iconData?.isCreatedByUser !== true && !assistant && !agent) {
+    return (
+      <ConvoIconURL
+        iconURL={deploymentBrand.assistantIconURL}
+        modelLabel={deploymentBrand.assistantName}
+        context="message"
+      />
+    );
+  }
 
   if (iconData?.isCreatedByUser !== true && isImageURL(iconURL)) {
     return (

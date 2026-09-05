@@ -1143,6 +1143,7 @@
   "com_ui_mermaid": "mermaid",
   "com_ui_mermaid_failed": "Échec du rendu du diagramme :",
   "com_ui_message_input": "Saisie du message",
+  "com_ui_message_placeholder": "Tapez votre message",
   "com_ui_microphone_unavailable": "Le microphone n'est pas disponible",
   "com_ui_min_tags": "Impossible de supprimer plus de valeurs, un minimum de {{0}} est requis.",
   "com_ui_minimal": "Minimal",

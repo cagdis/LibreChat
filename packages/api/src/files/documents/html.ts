@@ -1,6 +1,7 @@
 import yauzl from 'yauzl';
 import { excelMimeTypes, megabyte } from 'librechat-data-provider';
 import { tryLibreOfficePreview } from './libreoffice';
+import { MAX_FILE_PREVIEW_BYTES } from '../preview';
 import { assertSafeZipSize } from './zipSafety';
 
 /**
@@ -14,7 +15,7 @@ const PPTX_MAX_ENTRY_SIZE = 50 * megabyte;
 const PPTX_MAX_SLIDES = 500;
 
 /** Per-sheet row cap for spreadsheet rendering. Above this we truncate with a
- *  visible banner so a 100k-row sheet doesn't blow the 512KB cache cap. */
+ *  visible banner so a 100k-row sheet doesn't blow the configured preview cap. */
 const SPREADSHEET_MAX_ROWS_PER_SHEET = 5_000;
 
 /** Lazy-loaded `sanitize-html` module (commonjs interop). */
@@ -318,7 +319,8 @@ const DOCX_EXTRA_CSS = `
  *     any parser bug from the API process.
  *   − base64 inflates the binary by ~33%, so files above
  *     `MAX_DOCX_CDN_BINARY_BYTES` fall back to the mammoth path so the
- *     wrapped HTML doesn't blow the `MAX_TEXT_CACHE_BYTES` (512KB) cap
+ *     wrapped HTML doesn't blow the configured preview cap (512 KB by
+ *     default)
  *     on `attachment.text`. Telemetry should track how often we hit the
  *     fallback — if it's frequent, the next move is to lift the cap
  *     for office types specifically rather than embed via signed URL.
@@ -346,23 +348,13 @@ const DOCX_PREVIEW_CDN = {
 /**
  * Maximum DOCX binary size (in bytes) we'll embed via the CDN-rendered
  * path. Empirical headroom: with ~33% base64 inflation and ~5KB of
- * wrapper boilerplate, 350KB of binary fits well under the 512KB
- * `MAX_TEXT_CACHE_BYTES` cap on `attachment.text` with margin to spare.
+ * wrapper boilerplate, 350KB of binary fits well under the default 512 KB
+ * preview cap on `attachment.text` with margin to spare.
  */
 const MAX_DOCX_CDN_BINARY_BYTES = 350 * 1024;
 
-/**
- * Mirror of `MAX_TEXT_CACHE_BYTES` from `~/files/code/extract` — the
- * 512 KB ceiling that `attachment.text` is truncated to before hitting
- * the SSE wire and the database. We mirror (rather than import) to
- * avoid the cycle: `extract.ts` already imports `bufferToOfficeHtml`
- * from this module. The dispatcher uses this to drop CDN-with-fallback
- * docs that would exceed the cap and fall back to mammoth-only.
- *
- * If the upstream constant ever changes, update this value too. The
- * `cap-mirrors-extract` test in `html.spec.ts` pins the relationship.
- */
-const OFFICE_HTML_OUTPUT_CAP = 512 * 1024;
+/** Shared cap for serialized inline previews and their office renderers. */
+const OFFICE_HTML_OUTPUT_CAP = MAX_FILE_PREVIEW_BYTES;
 
 /**
  * Build the CDN-rendered HTML document for a DOCX. The base64 payload
@@ -600,7 +592,7 @@ function isOfficePreviewCdnDisabled(): boolean {
  *      `OFFICE_PREVIEW_DISABLE_CDN=true`)**: server-side semantic HTML
  *      conversion. Lower fidelity (flat paragraphs, no shading) but
  *      produces compact output that fits the `MAX_TEXT_CACHE_BYTES`
- *      (512 KB) cap on `attachment.text` even for large documents,
+ *      configured preview cap on `attachment.text` even for large documents,
  *      and works without external network.
  *
  * Both paths pre-flight through `assertSafeZipSize` so a zip-bomb DOCX
@@ -626,7 +618,7 @@ export async function wordDocToHtml(buffer: Buffer): Promise<string> {
   }
   /* Render mammoth first so its sanitized output can be embedded as
    * the iframe's air-gapped fallback. If the combined size would
-   * exceed the 512 KB cache cap, drop to mammoth-only — the user
+   * exceed the configured preview cap, drop to mammoth-only — the user
    * loses high-fidelity rendering but still sees the document. The
    * size budget applies after mammoth runs because we can't know its
    * output size from the binary size alone. */
@@ -1062,7 +1054,8 @@ const PPTX_PREVIEW_CDN = {
 
 /**
  * Same 350 KB binary cap as DOCX — keeps the base64-inflated wrapped
- * HTML under `MAX_TEXT_CACHE_BYTES` (512 KB) on `attachment.text`.
+ * HTML under the configured preview cap (512 KB by default) on
+ * `attachment.text`.
  * PPTX files often exceed this once embedded media is involved; the
  * dispatcher's slide-list fallback handles the larger cases.
  */
