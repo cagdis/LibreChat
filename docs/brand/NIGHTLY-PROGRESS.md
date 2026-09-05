@@ -6,3 +6,4 @@
 - 2026-09-04 23:09:08 T3 DONE: placeholder em pt-BR/es/fr/de. JSON validos, diff 1 linha/idioma.
 - 2026-09-04 23:09:08 T4 front DONE: ToolsDropdown/badges removidos (MCPSelect mantido), force em useGetEphemeralAgent. tsc parcial limpo.
 - 2026-09-04 23:09:08 T5 backend DONE: force em load.ts + openai/responses skills; load.spec 39/39.
+- 2026-09-04 23:35:11 BOOT RESTAURADO: shim ACL (export+2 adaptadores+middleware). Build sem --pull + up. runrun registrado (lazy, 0 tools pre-connect). URLs 200.
