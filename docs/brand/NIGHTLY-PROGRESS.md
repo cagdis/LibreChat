@@ -7,3 +7,6 @@
 - 2026-09-04 23:09:08 T4 front DONE: ToolsDropdown/badges removidos (MCPSelect mantido), force em useGetEphemeralAgent. tsc parcial limpo.
 - 2026-09-04 23:09:08 T5 backend DONE: force em load.ts + openai/responses skills; load.spec 39/39.
 - 2026-09-04 23:35:11 BOOT RESTAURADO: shim ACL (export+2 adaptadores+middleware). Build sem --pull + up. runrun registrado (lazy, 0 tools pre-connect). URLs 200.
+- 2026-09-04 23:35:30 T6 parcial: runrun declarado+registrado (lazy). Trio Google: skeleton pronto, falta console do Daniel.
+- 2026-09-04 23:35:30 T7 code DONE: seletor filtrado + enforce:false/modelSelect:true + brand-09 doc. Visual fica p/ Daniel.
+- 2026-09-04 23:35:30 T8 parcial: boot+URLs+sem crash OK; chat real e visual ficam p/ Daniel.
