@@ -29,7 +29,9 @@ Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commi
 - Objetivo: nenhum botão de ferramenta no composer; tudo ligado sempre ("mágico").
 - `client/src/components/Chat/Input/ToolsDropdown.tsx:378-399`: remover o botão do composer.
 - `client/src/components/Chat/Input/BadgeRow.tsx:333,373-382`: remover badges
-  (`WebSearch`, `CodeInterpreter`, `FileSearch`, `Skills`, `Memory`, `Artifacts`, `MCPSelect`).
+  (`WebSearch`, `CodeInterpreter`, `FileSearch`, `Skills`, `Memory`, `Artifacts`).
+  **MANTER `MCPSelect` visível** — MCPs são conexão por usuário (OAuth/valores),
+  não dá para forçar como built-in.
 - `client/src/hooks/Chat/useChatFunctions.ts:373,697-725` (`getEphemeralAgent`):
   forçar `web_search, file_search, execute_code, artifacts, skills, memory,
   ask_user_question = true`, ignorando o átomo Recoil.
@@ -52,7 +54,16 @@ Convenção: commits atômicos em PT, docs em `docs/brand/patches/`, nunca commi
 - Critério: `tsc` em `packages/api`; teste manual via API registra `tools` ativos
   mesmo com `ephemeralAgent` tudo-false no request.
 
-## T6. Smoke pós-tudo (15 min)
+## T6. MCPs: runrun.it full + trio Google até o limite sem segredo (90 min)
+- runrun.it (`https://arvore-mcp-runrun.cagdis.com/mcp`, Streamable HTTP, sem auth —
+  `initialize` já responde `arvore-mcp-runrun 1.0.0`): declarar em `librechat.yaml`
+  `mcpServers`, restart, smoke `tools/list` via API, confirmar aparecendo na UI.
+- Google Drive/Gmail/Calendar: SEM segredo não dá para fechar click-conect; entregar:
+  (a) qual servidor/ponte usar e por quê; (b) skeleton comentado no yaml;
+  (c) shopping-list exata do que falta (chave ou URI de redirect no console Google).
+- Critério: runrun.it clicável na UI de manhã; doc do trio Google pronta.
+
+## T7. Smoke pós-tudo (15 min)
 - `https://arvorepress.cagdis.com.br/` 200 + `<title>ÁrvorePress IA</title>`,
   `/login` 200, `/privacy/` 200, `https://admin.arvorepress.cagdis.com.br/` 200,
   `docker ps` tudo Up, sem `Cannot find module` nos logs do api.
