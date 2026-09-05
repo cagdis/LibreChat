@@ -67,5 +67,10 @@ RUN rm -rf /app/client/dist
 COPY --from=client-builder --chown=node:node /app/client/dist /app/client/dist
 COPY --from=client-builder --chown=node:node /app/packages/api/dist /app/packages/api/dist
 COPY --chown=node:node api/server/services/start/tools.js /app/api/server/services/start/tools.js
+# Brand-09 always-on: force the client skills toggle server-side on both agent
+# controllers (base vs runtime-tip diff here is 5 unrelated lines; re-check it
+# after every upstream rebase or drop these lines if upstream covers it).
+COPY --chown=node:node api/server/controllers/agents/openai.js /app/api/server/controllers/agents/openai.js
+COPY --chown=node:node api/server/controllers/agents/responses.js /app/api/server/controllers/agents/responses.js
 
 USER node

@@ -58,6 +58,10 @@ export * from './memory';
 export * from './modelSpecs';
 /* Agents */
 export * from './agents';
+/* ACL compat (brand-09): the deployed runtime expects these; middleware vendored
+ * verbatim from upstream, bulk/restore methods are documented adapters. */
+export * from './acl/accessControlService';
+export * from './acl/middleware';
 /* Assistants */
 export * from './assistants';
 /* Actions */

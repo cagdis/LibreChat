@@ -39,3 +39,13 @@
   3. `tsc` client + `packages/api`; jest ConvoIcon/EndpointIcon/load/useTextarea.
   4. Smoke: composer sem botões; conversa nova em ÁrvorePress IA; chat com agent
      responde; UI sem `deepseek-v4-pro` cru nem endpoint DeepSeek.
+- LIÇÃO runtime flutuante (overnight 04/09): `Dockerfile.brand` usa
+  `librechat-dev:latest` + `packages/api/dist` do builder. Se o upstream publicar
+  runtime com `api/server` que exige exports ainda inexistentes na nossa base
+  (caso real: `AccessControlService` + middlewares vindos da evolução ACL pós-base),
+  o boot morre em `TypeError ... not a constructor`. Diagnóstico: comparar os
+  identificadores que o runtime importa de `@librechat/api` com as chaves do nosso
+  `dist` (overnight: 144 usados, 3 faltando). Fix permitido: shim ADITIVO
+  (`acl/middleware.ts` verbatim + métodos adaptadores sobre primitivas existentes,
+  documentados) — NUNCA portar a evolução inteira nem rebaixar runtime às cegas.
+  Rebuild sempre com `--pull` APÓS conferir que base e runtime conversam.

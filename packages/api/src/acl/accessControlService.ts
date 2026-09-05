@@ -473,4 +473,194 @@ export class AccessControlService {
       );
     }
   }
+
+  /**
+   * Brand compat shim (brand-09): the deployed `librechat-dev` runtime image is
+   * newer than this source base and its PermissionsController calls these two
+   * methods. `bulkUpdateResourcePermissions` mirrors upstream semantics over the
+   * pre-evolution primitives; insights tracking did not exist at this base, so
+   * `insightsChanges` is always `[]` (documented gap — the insights Roles UI is
+   * degraded until the next upstream rebase; chat/share/agent flows unaffected).
+   */
+  public async bulkUpdateResourcePermissions({
+    resourceType,
+    resourceId,
+    updatedPrincipals = [],
+    revokedPrincipals = [],
+    grantedBy,
+    session,
+  }: {
+    resourceType: ResourceType;
+    resourceId: string | Types.ObjectId;
+    updatedPrincipals?: Array<{
+      type: PrincipalType;
+      id?: string | Types.ObjectId | null;
+      accessRoleId?: string;
+    }>;
+    revokedPrincipals?: Array<{ type: PrincipalType; id?: string | Types.ObjectId | null }>;
+    grantedBy: string | Types.ObjectId;
+    session?: ClientSession;
+  }): Promise<{
+    granted: unknown[];
+    updated: unknown[];
+    revoked: unknown[];
+    insightsChanges: unknown[];
+    errors: Array<{ principal: unknown; error: string }>;
+  }> {
+    if (!Array.isArray(updatedPrincipals)) {
+      throw new Error('updatedPrincipals must be an array');
+    }
+    if (!Array.isArray(revokedPrincipals)) {
+      throw new Error('revokedPrincipals must be an array');
+    }
+    if (!resourceId || !Types.ObjectId.isValid(resourceId)) {
+      throw new Error(`Invalid resource ID: ${resourceId}`);
+    }
+    this.validateResourceType(resourceType);
+
+    const results: {
+      granted: unknown[];
+      updated: unknown[];
+      revoked: unknown[];
+      insightsChanges: unknown[];
+      errors: Array<{ principal: unknown; error: string }>;
+    } = { granted: [], updated: [], revoked: [], insightsChanges: [], errors: [] };
+
+    const principalKey = (type: PrincipalType, id: unknown) =>
+      type === PrincipalType.PUBLIC ? `${type}:null` : `${type}:${String(id)}`;
+
+    // Grant wins over revoke for the same non-public principal (mirrors upstream);
+    // an explicit PUBLIC disable always wins.
+    const grantedKeys = new Set<string>();
+    const lastUpdateIndex = new Map<string, number>();
+    updatedPrincipals.forEach((principal, index) => {
+      if (principal?.type == null) {
+        return;
+      }
+      lastUpdateIndex.set(principalKey(principal.type, principal.id), index);
+    });
+    const effectiveUpdated = updatedPrincipals.filter(
+      (principal, index) =>
+        principal?.type == null ||
+        lastUpdateIndex.get(principalKey(principal.type, principal.id)) === index,
+    );
+    for (const principal of effectiveUpdated) {
+      if (principal?.type != null) {
+        grantedKeys.add(principalKey(principal.type, principal.id));
+      }
+    }
+
+    let currentEntries: IAclEntry[] = [];
+    try {
+      currentEntries = await this._dbMethods.findEntriesByResource(resourceType, resourceId);
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error(`[PermissionService.bulkUpdateResourcePermissions] Error: ${error.message}`);
+      }
+      throw error;
+    }
+    const currentKeys = new Set(
+      currentEntries.map((entry) =>
+        principalKey(
+          entry.principalType as PrincipalType,
+          entry.principalId == null ? null : String(entry.principalId),
+        ),
+      ),
+    );
+
+    const queryPrincipalId = (type: PrincipalType, id: unknown) => {
+      if (type === PrincipalType.ROLE) {
+        if (typeof id !== 'string' || id.trim().length === 0) {
+          throw new Error(`Invalid role ID: ${String(id)}`);
+        }
+        return id;
+      }
+      const str = id?.toString() ?? '';
+      if (!str || !Types.ObjectId.isValid(str)) {
+        throw new Error(`Invalid principal ID: ${String(id)}`);
+      }
+      return new Types.ObjectId(str);
+    };
+
+    for (const principal of effectiveUpdated) {
+      try {
+        if (principal?.type == null) {
+          results.errors.push({ principal, error: 'principal type is required' });
+          continue;
+        }
+        if (!principal.accessRoleId) {
+          results.errors.push({ principal, error: 'accessRoleId is required' });
+          continue;
+        }
+        const role = await this._dbMethods.findRoleByIdentifier(principal.accessRoleId);
+        if (!role) {
+          results.errors.push({ principal, error: `Role ${principal.accessRoleId} not found` });
+          continue;
+        }
+        await this.grantPermission({
+          principalType: principal.type,
+          principalId:
+            principal.type === PrincipalType.PUBLIC
+              ? null
+              : (queryPrincipalId(principal.type, principal.id) as Types.ObjectId),
+          resourceType,
+          resourceId,
+          accessRoleId: principal.accessRoleId,
+          grantedBy,
+          session,
+        });
+        const key = principalKey(principal.type, principal.id);
+        if (currentKeys.has(key)) {
+          results.updated.push(principal);
+        } else {
+          results.granted.push(principal);
+          currentKeys.add(key);
+        }
+      } catch (error) {
+        results.errors.push({
+          principal,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    for (const principal of revokedPrincipals) {
+      try {
+        if (principal?.type == null) {
+          continue;
+        }
+        const key = principalKey(principal.type, principal.id);
+        if (grantedKeys.has(key) && principal.type !== PrincipalType.PUBLIC) {
+          continue;
+        }
+        const filter: Record<string, unknown> = { principalType: principal.type, resourceType, resourceId };
+        if (principal.type !== PrincipalType.PUBLIC) {
+          filter.principalId = queryPrincipalId(principal.type, principal.id);
+        }
+        const res = await this._dbMethods.deleteAclEntries(filter);
+        if ((res?.deletedCount ?? 0) > 0) {
+          results.revoked.push(principal);
+        }
+      } catch (error) {
+        results.errors.push({
+          principal,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Brand compat shim (brand-09): insights permission tracking is post-base
+   * upstream evolution; there is nothing to restore on this base.
+   */
+  public async restoreInsightsPermissionChanges(_args: {
+    resourceType: ResourceType;
+    resourceId: string | Types.ObjectId;
+    changes: unknown[];
+  }): Promise<unknown[]> {
+    return [];
+  }
 }
